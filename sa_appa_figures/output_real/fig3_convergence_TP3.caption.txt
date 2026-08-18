@@ -1,0 +1,1 @@
+Figure 3 (TP3). Convergence on TP3 (n_ul=2, n_ll=2): mean best-feasible objective found so far vs. cumulative expensive evaluations, averaged across 30 independent runs per method; shaded band spans the min-max range across those runs at each evaluation count. Methods with zero feasible runs throughout the budget are omitted from this panel and noted below the plot instead.
