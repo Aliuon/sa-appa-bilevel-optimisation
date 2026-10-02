@@ -14,7 +14,7 @@ run_all.py) and, for each of the 7 scenarios (scenarios.py):
      units) AND the Nemenyi critical distance (mean-rank units, for the
      CD diagram) -- kept explicitly distinct per Task 5's standing rule.
 
-Usage: python3 analysis.py            # all 7 scenarios
+Usage: python3 analysis.py            # all 8 scenarios (Scenario 8 needs M14 results)
        python3 analysis.py --num 3    # just scenario 3
 """
 
@@ -27,11 +27,18 @@ from scenarios import SCENARIOS, SCENARIO_BY_NUM
 from benchmark import SUITE
 from friedman_test import friedman_f_statistic, f_critical, conover_posthoc_cd, nemenyi_cd, pairwise_table
 
-RESULTS_CSV = "results/summary.csv"
+RESULTS_CSV = "results/summary.csv"            # locked M1-M13 sweep (never modified)
+RESULTS_CSV_M14 = "results/summary_m14.csv"    # M14 sweep (run_m14.py), additive
+import os as _os
 
 
-def load_results():
+def load_results(include_m14=True):
+    """Locked M1-M13 results, plus M14 rows when results/summary_m14.csv
+    exists. The two files are concatenated in memory only; summary.csv is
+    never rewritten."""
     df = pd.read_csv(RESULTS_CSV)
+    if include_m14 and _os.path.exists(RESULTS_CSV_M14):
+        df = pd.concat([df, pd.read_csv(RESULTS_CSV_M14)], ignore_index=True)
     return df
 
 

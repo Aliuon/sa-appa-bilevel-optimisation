@@ -2,7 +2,7 @@
   {
     "num": 1,
     "phase": "I",
-    "name": "Initialisation strategy",
+    "name": "Initial design",
     "methods": [
       "M1",
       "M2"
@@ -26,7 +26,7 @@
   {
     "num": 2,
     "phase": "I",
-    "name": "Genetic operators",
+    "name": "GA hybridisation",
     "methods": [
       "M1",
       "M3"
@@ -50,7 +50,7 @@
   {
     "num": 3,
     "phase": "I",
-    "name": "Hierarchical dynamics",
+    "name": "Search engine",
     "methods": [
       "M3",
       "M4",
@@ -78,7 +78,7 @@
   {
     "num": 4,
     "phase": "I",
-    "name": "Constraint management",
+    "name": "Constraint handling",
     "methods": [
       "M1",
       "M7",
@@ -104,7 +104,7 @@
   {
     "num": 5,
     "phase": "I",
-    "name": "Surrogate-informed adaptation",
+    "name": "Step-size rule",
     "methods": [
       "M1",
       "M9"
@@ -128,13 +128,13 @@
   {
     "num": 6,
     "phase": "II",
-    "name": "Surrogate-assisted competitors",
+    "name": "Surrogate-assisted engine baselines",
     "methods": [
       "M1",
       "M10",
       "M11"
     ],
-    "isolates": "SA-APPA vs SADE-EI, SPSO-RBF",
+    "isolates": "SA-APPA vs in-house surrogate-assisted DE (GP) and PSO (RBF) baselines with penalised-EI constraint handling (M10/M11 are NOT re-implementations of published methods; see methods.py METHOD_SPECS)",
     "mean_ranks": {
       "M1": 1.7954545454545454,
       "M10": 2.772727272727273,
@@ -154,13 +154,13 @@
   {
     "num": 7,
     "phase": "II",
-    "name": "Non-surrogate baselines",
+    "name": "Fully nested baseline",
     "methods": [
       "M1",
       "M12",
       "M13"
     ],
-    "isolates": "surrogate efficiency gain vs nested/co-evolutionary search",
+    "isolates": "SA-APPA vs a fully nested GA with feasibility rules; M12 and M13 run the SAME algorithm (methods.run_nested_method) with different seed streams",
     "mean_ranks": {
       "M1": 1.9545454545454546,
       "M12": 1.9545454545454546,
@@ -176,5 +176,29 @@
     "f_crit_01": 4.8608143105034705,
     "cd_nemenyi_05": 0.49967864393894107,
     "cd_conover_05": 18.589242860433856
+  },
+  {
+    "num": 8,
+    "phase": "II",
+    "name": "Published surrogate-assisted bilevel method",
+    "methods": [
+      "M1",
+      "M14"
+    ],
+    "isolates": "SA-APPA vs a matched-budget re-implementation of BL-SAEA (Jiang et al., IEEE TCYB 2024)",
+    "mean_ranks": {
+      "M1": 1.8522727272727273,
+      "M14": 1.1477272727272727
+    },
+    "n_instances": 44,
+    "k_methods": 2,
+    "T2": 44.38560687432857,
+    "p_value": 3.976314932874203e-08,
+    "df1": 1,
+    "df2": 43,
+    "f_crit_05": 4.067047426426357,
+    "f_crit_01": 7.26357521708002,
+    "cd_nemenyi_05": 0.2954756881513313,
+    "cd_conover_05": 9.383832154671417
   }
 ]
