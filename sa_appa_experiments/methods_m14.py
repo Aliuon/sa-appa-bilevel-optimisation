@@ -3,7 +3,7 @@ methods_m14.py
 ==============
 M14: a matched-budget re-implementation of BL-SAEA,
 
-    H. Jiang, K. Qiu, Y. Tian, X. Zhang, Y. Jin, "Efficient surrogate
+    H. Jiang, K. Chou, Y. Tian, X. Zhang, Y. Jin, "Efficient surrogate
     modeling method for evolutionary algorithm to solve bilevel
     optimization problems", IEEE Transactions on Cybernetics 54(7)
     (2024) 4335-4347, doi:10.1109/TCYB.2023.3309598.
@@ -11,9 +11,10 @@ M14: a matched-budget re-implementation of BL-SAEA,
 Source used for the algorithmic details: the authors' group's own
 reference implementation in PlatEMO (BIMK/PlatEMO, file
 Algorithms/Multi-objective optimization/BL-SAEA/BLSAEA.m and llSearch.m),
-read directly. The published paper itself was not accessible from this
-environment (paywalled), so where the paper and the PlatEMO code could
-differ, the PlatEMO code is what is followed, except where noted below.
+read directly. The published paper was checked afterwards (October 2026):
+it specifies LL mapping models from x_u to x_l* (Section III-C, Algorithm 4),
+which is what is implemented here; its per-UL-point top-K training set is
+available through run_m14(..., ll_topk=True) (sensitivity run M14K).
 
 This module is ADDITIVE. It does not import-modify methods.py, gp.py or
 ll_solver.py, so the locked M1-M13 results in results/summary.csv are
