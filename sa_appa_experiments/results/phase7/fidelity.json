@@ -286,6 +286,14 @@
    "n_rows": 60,
    "max_rel_dev": 0.0,
    "reproduces": true
+  },
+  {
+   "instance": "SMD1_p3q3",
+   "method": "M1",
+   "run": 19,
+   "n_rows": 60,
+   "max_rel_dev": 0.0,
+   "reproduces": true
   }
  ],
  "A5": {
@@ -392,6 +400,19 @@
    "n_dropped_ll_infeasible": 0,
    "lengthscale": 27.36392211227811,
    "truth": "exact QP"
+  },
+  "SMD1_p3q3": {
+   "n": 200,
+   "rmse": 16.984603229451125,
+   "max_abs": 63.69253383777195,
+   "coverage_2sd": 0.0,
+   "mean_sd": 0.09806329438806377,
+   "theta_range": 257.43711547158665,
+   "run": 19,
+   "locked_best": 8.360925425308242,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 12.920803144757667,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
   }
  }
 }
