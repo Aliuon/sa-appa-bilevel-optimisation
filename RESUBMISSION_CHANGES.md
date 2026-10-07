@@ -30,3 +30,10 @@ Order to reproduce: `python run_m14.py` → `python analysis_resub.py` →
 
 Not updated in this package: the standalone merge file `SA_APPA_4nd.py` and the MATLAB
 port `SA_APPA_2nd.m` (not available in this session).
+
+Added 2026-10-07
+- `methods_m14.py`: new option `ll_topk` (default False, so M14 is unchanged; verified bit-for-bit
+  on TP3 and SMD1 (3,3), run 0). True trains the LL mapping models on the K most cosine-similar
+  archive points, as in Jiang et al. (2024), Algorithm 4.
+- `run_m14k.py` / `analysis_m14k.py`: M14K sensitivity run on the 20 instances where K < 60
+  (600 runs; results/summary_m14k.csv); adds 's8_m14k' to resub_numbers.json.

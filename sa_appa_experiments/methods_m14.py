@@ -250,7 +250,10 @@ def _quad_fit(X, y):
 # Main loop
 # ---------------------------------------------------------------------------
 
-def run_m14(inst, seed=0, method_id="M14"):
+def run_m14(inst, seed=0, method_id="M14", ll_topk=False):
+    """ll_topk=True trains the LL mapping models, per UL point, on the K archive points most
+    similar in cosine similarity, K=(Du+1)(Dl+2)/2, as in Jiang et al. (2024), Algorithm 4.
+    The default (False) trains on the whole archive; this is the configuration reported as M14."""
     t0 = time.time()
     lo, hi = inst.x_bounds[:, 0], inst.x_bounds[:, 1]
     rng = np.random.default_rng(_stable_seed(seed, method_id, inst.id, "pop") % (2 ** 31 - 1))
@@ -292,10 +295,18 @@ def run_m14(inst, seed=0, method_id="M14"):
             front = front[np.argsort(mu[front])[:remaining]]
 
         # --- LL mapping models x_u -> x_l*
-        ll_models = [_fit_gp_ml(A_x, A_y[:, k]) for k in range(A_y.shape[1])]
+        K_top = (A_x.shape[1] + 1) * (A_y.shape[1] + 2) // 2
+        if not ll_topk or K_top >= len(A_x):
+            ll_models = [_fit_gp_ml(A_x, A_y[:, k]) for k in range(A_y.shape[1])]
 
-        def predict_xl(xu):
-            return np.array([_predict_gp_ml(m, xu[None, :])[0][0] for m in ll_models])
+            def predict_xl(xu):
+                return np.array([_predict_gp_ml(m, xu[None, :])[0][0] for m in ll_models])
+        else:
+            def predict_xl(xu):
+                nx = np.linalg.norm(A_x, axis=1) * (np.linalg.norm(xu) + 1e-12) + 1e-12
+                sel = np.argsort(-(A_x @ xu) / nx, kind="stable")[:K_top]
+                ms = [_fit_gp_ml(A_x[sel], A_y[sel, k]) for k in range(A_y.shape[1])]
+                return np.array([_predict_gp_ml(m, xu[None, :])[0][0] for m in ms])
 
         def nearest_xl(xu):
             nx = np.linalg.norm(A_x, axis=1) * (np.linalg.norm(xu) + 1e-12) + 1e-12
