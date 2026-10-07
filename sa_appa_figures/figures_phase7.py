@@ -280,7 +280,8 @@ def fig_A5():
                f"+/- 2 sigma bars, for the GP SA-APPA held at the end of run {m['run']} (lower-median run, rule "
                f"fixed in advance). True values from {m['truth']}"
                + (f"; {m['n_dropped_ll_infeasible']} points without an LL-feasible response were dropped" if m['n_dropped_ll_infeasible'] else "")
-               + f". RMSE {m['rmse']:.3g}, coverage {100 * m['coverage_2sd']:.0f}% (nominal 95%).")
+               + f". RMSE {m['rmse']:.3g}, coverage {100 * m['coverage_2sd']:.0f}% (nominal 95%). The mean "
+               f"predictive standard deviation is {m['mean_sd']:.2g}, so most bars are narrower than the markers.")
         save(fig, f"A5_{iid.lower()}", cap, dict(part="A5", instance=iid, run=m["run"], seed=m["run"]))
 
 

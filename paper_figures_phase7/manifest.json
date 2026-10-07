@@ -420,5 +420,165 @@
   "target": 1.0,
   "runs": "0-29 (all, locked)",
   "placement": "appendix"
+ },
+ {
+  "file": "A5_tp1",
+  "caption": "TP1: GP posterior mean of theta against the true theta on 340 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 60 points without an LL-feasible response were dropped. RMSE 0.0466, coverage 52% (nominal 95%). The mean predictive standard deviation is 0.0043, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP1",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_tp2",
+  "caption": "TP2: GP posterior mean of theta against the true theta on 90 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 17 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 310 points without an LL-feasible response were dropped. RMSE 58.7, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0029, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP2",
+  "run": 17,
+  "seed": 17
+ },
+ {
+  "file": "A5_tp3",
+  "caption": "TP3: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 5 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 10.8, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0027, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5
+ },
+ {
+  "file": "A5_tp4",
+  "caption": "TP4: GP posterior mean of theta against the true theta on 396 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 4 points without an LL-feasible response were dropped. RMSE 0.447, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0026, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP4",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A5_tp5",
+  "caption": "TP5: GP posterior mean of theta against the true theta on 369 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 0 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 31 points without an LL-feasible response were dropped. RMSE 0.293, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0019, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP5",
+  "run": 0,
+  "seed": 0
+ },
+ {
+  "file": "A5_tp6",
+  "caption": "TP6: GP posterior mean of theta against the true theta on 210 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 190 points without an LL-feasible response were dropped. RMSE 0.000658, coverage 78% (nominal 95%). The mean predictive standard deviation is 0.00039, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP6",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_tp7",
+  "caption": "TP7: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 0.841, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0063, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP7",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A5_tp8",
+  "caption": "TP8: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 21 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 2.12, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0021, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP8",
+  "run": 21,
+  "seed": 21
+ },
+ {
+  "file": "A5_smd1_p3q3",
+  "caption": "SMD1_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 17, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.098, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD1_p3q3",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_smd2_p3q3",
+  "caption": "SMD2_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 12 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 8.21, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.082, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD2_p3q3",
+  "run": 12,
+  "seed": 12
+ },
+ {
+  "file": "A5_smd3_p3q3",
+  "caption": "SMD3_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 9 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 22.9, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD3_p3q3",
+  "run": 9,
+  "seed": 9
+ },
+ {
+  "file": "A5_smd4_p3q3",
+  "caption": "SMD4_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 11.5, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.074, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD4_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd5_p3q3",
+  "caption": "SMD5_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 12.7, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.093, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD5_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd6_p3q3",
+  "caption": "SMD6_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 194, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.065, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A5_smd7_p3q3",
+  "caption": "SMD7_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 3.03, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD7_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd8_p3q3",
+  "caption": "SMD8_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 3 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.55, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.08, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD8_p3q3",
+  "run": 3,
+  "seed": 3
+ },
+ {
+  "file": "A5_smd9_p3q3",
+  "caption": "SMD9_p3q3: GP posterior mean of theta against the true theta on 199 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 1 points without an LL-feasible response were dropped. RMSE 6.77, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.049, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD9_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd10_p3q3",
+  "caption": "SMD10_p3q3: GP posterior mean of theta against the true theta on 142 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 58 points without an LL-feasible response were dropped. RMSE 20.6, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.071, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD10_p3q3",
+  "run": 6,
+  "seed": 6
+ },
+ {
+  "file": "A5_smd11_p3q3",
+  "caption": "SMD11_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.81, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD11_p3q3",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A5_smd12_p3q3",
+  "caption": "SMD12_p3q3: GP posterior mean of theta against the true theta on 108 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 92 points without an LL-feasible response were dropped. RMSE 59.3, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD12_p3q3",
+  "run": 6,
+  "seed": 6
  }
 ]

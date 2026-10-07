@@ -294,6 +294,94 @@
    "n_rows": 60,
    "max_rel_dev": 0.0,
    "reproduces": true
+  },
+  {
+   "instance": "SMD2_p3q3",
+   "method": "M1",
+   "run": 12,
+   "n_rows": 60,
+   "max_rel_dev": 1.5053892995424244e-16,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD3_p3q3",
+   "method": "M1",
+   "run": 9,
+   "n_rows": 60,
+   "max_rel_dev": 2.1071882140588986e-14,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD4_p3q3",
+   "method": "M1",
+   "run": 14,
+   "n_rows": 60,
+   "max_rel_dev": 5.4062958693406675e-14,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD5_p3q3",
+   "method": "M1",
+   "run": 14,
+   "n_rows": 60,
+   "max_rel_dev": 0.0,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD6_p3q3",
+   "method": "M1",
+   "run": 1,
+   "n_rows": 60,
+   "max_rel_dev": 4.8332729429651947e-08,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD7_p3q3",
+   "method": "M1",
+   "run": 29,
+   "n_rows": 60,
+   "max_rel_dev": 1.6653345369377348e-15,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD8_p3q3",
+   "method": "M1",
+   "run": 3,
+   "n_rows": 60,
+   "max_rel_dev": 2.1183207887608274e-14,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD9_p3q3",
+   "method": "M1",
+   "run": 29,
+   "n_rows": 60,
+   "max_rel_dev": 1.4367534598421821e-11,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD10_p3q3",
+   "method": "M1",
+   "run": 6,
+   "n_rows": 60,
+   "max_rel_dev": 0.0,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD11_p3q3",
+   "method": "M1",
+   "run": 10,
+   "n_rows": 60,
+   "max_rel_dev": 0.0,
+   "reproduces": true
+  },
+  {
+   "instance": "SMD12_p3q3",
+   "method": "M1",
+   "run": 6,
+   "n_rows": 60,
+   "max_rel_dev": 0.0,
+   "reproduces": true
   }
  ],
  "A5": {
@@ -412,6 +500,149 @@
    "locked_best": 8.360925425308242,
    "n_dropped_ll_infeasible": 0,
    "lengthscale": 12.920803144757667,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD2_p3q3": {
+   "n": 200,
+   "rmse": 8.205530060391919,
+   "max_abs": 31.93382363770678,
+   "coverage_2sd": 0.005,
+   "mean_sd": 0.08168887697323672,
+   "theta_range": 245.79787222964146,
+   "run": 12,
+   "locked_best": 5.899991583373779,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 10.067564597818766,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD3_p3q3": {
+   "n": 200,
+   "rmse": 22.872012800358565,
+   "max_abs": 117.42824891024748,
+   "coverage_2sd": 0.01,
+   "mean_sd": 0.11093605090957866,
+   "theta_range": 257.4371154705165,
+   "run": 9,
+   "locked_best": 10.284583643783282,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 12.200493474258554,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD4_p3q3": {
+   "n": 200,
+   "rmse": 11.462261992307154,
+   "max_abs": 82.72782630258263,
+   "coverage_2sd": 0.025,
+   "mean_sd": 0.07429475283881694,
+   "theta_range": 245.07562492036195,
+   "run": 14,
+   "locked_best": 1.85232401706128,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 8.376168370625539,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD5_p3q3": {
+   "n": 200,
+   "rmse": 12.66390739117566,
+   "max_abs": 42.024674078851135,
+   "coverage_2sd": 0.015,
+   "mean_sd": 0.09306657260613616,
+   "theta_range": 252.91360475626536,
+   "run": 14,
+   "locked_best": 8.144006195823476,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 13.302764150562922,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD6_p3q3": {
+   "n": 200,
+   "rmse": 193.5990949827693,
+   "max_abs": 615.8135004688273,
+   "coverage_2sd": 0.0,
+   "mean_sd": 0.06450638619492816,
+   "theta_range": 363.4808505849071,
+   "run": 1,
+   "locked_best": 24.998384067615127,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 14.56349488937449,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD7_p3q3": {
+   "n": 200,
+   "rmse": 3.0322646476735753,
+   "max_abs": 12.496195888563669,
+   "coverage_2sd": 0.015,
+   "mean_sd": 0.048080676558637576,
+   "theta_range": 44.285124596453464,
+   "run": 29,
+   "locked_best": 0.7029840409509933,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 11.31138646302385,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD8_p3q3": {
+   "n": 200,
+   "rmse": 7.554004429490392,
+   "max_abs": 29.624432673635084,
+   "coverage_2sd": 0.015,
+   "mean_sd": 0.08012575375041842,
+   "theta_range": 115.21424107072313,
+   "run": 3,
+   "locked_best": 8.715802279947482,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 13.5973061318961,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD9_p3q3": {
+   "n": 199,
+   "rmse": 6.767600363223493,
+   "max_abs": 32.950731994140256,
+   "coverage_2sd": 0.01507537688442211,
+   "mean_sd": 0.04881470890500477,
+   "theta_range": 245.79787222970836,
+   "run": 29,
+   "locked_best": 7.73801653640871,
+   "n_dropped_ll_infeasible": 1,
+   "lengthscale": 11.56417771970669,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD10_p3q3": {
+   "n": 142,
+   "rmse": 20.640149334511396,
+   "max_abs": 86.57877171720052,
+   "coverage_2sd": 0.0,
+   "mean_sd": 0.07087830374685022,
+   "theta_range": 157.3779121463106,
+   "run": 6,
+   "locked_best": 128.70553957972032,
+   "n_dropped_ll_infeasible": 58,
+   "lengthscale": 14.196221359217189,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD11_p3q3": {
+   "n": 200,
+   "rmse": 7.808765769464167,
+   "max_abs": 44.52460198759701,
+   "coverage_2sd": 0.01,
+   "mean_sd": 0.047968123654767124,
+   "theta_range": 245.07562491933518,
+   "run": 10,
+   "locked_best": NaN,
+   "n_dropped_ll_infeasible": 0,
+   "lengthscale": 8.913959057733337,
+   "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
+  },
+  "SMD12_p3q3": {
+   "n": 108,
+   "rmse": 59.310976099383595,
+   "max_abs": 327.49191312825053,
+   "coverage_2sd": 0.0,
+   "mean_sd": 0.10850389437972921,
+   "theta_range": 489.8535977178695,
+   "run": 6,
+   "locked_best": NaN,
+   "n_dropped_ll_infeasible": 92,
+   "lengthscale": 15.810710191632728,
    "truth": "reference DE (pop 30 n_ll, 300 gen, 2 seeds)"
   }
  }
