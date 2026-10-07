@@ -123,8 +123,11 @@ def part_A3():
 
 
 def part_A5():
-    out = {}
+    path = os.path.join(OUT, "fidelity.json")
+    out = (json.load(open(path)).get("A5", {}) if os.path.exists(path) else {})
     for iid in P.TP_LOWDIM + P.SMD_SMALL:
+        if iid in out and os.path.exists(os.path.join(OUT, f"a5_{iid}.npz")):
+            continue
         t0 = time.time()
         run, best = P.median_run(iid)
         snaps, chk = P.rerun_with_snapshots(iid, run)
@@ -141,6 +144,10 @@ def part_A5():
                    lengthscale=float(gp.lengthscale),
                    truth="exact QP" if iid in ("TP3", "TP8") else "reference DE (pop 30 n_ll, 300 gen, 2 seeds)")
         out[iid] = met
+        cur = json.load(open(path)) if os.path.exists(path) else {}
+        cur["A5"] = out
+        cur.setdefault("reruns", []).append(chk)
+        json.dump(cur, open(path, "w"), indent=1, default=float)   # checkpoint after every instance
         print(iid, f"{time.time()-t0:.0f}s", met["rmse"], met["coverage_2sd"], flush=True)
     return out
 
