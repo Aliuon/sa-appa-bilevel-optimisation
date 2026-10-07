@@ -1236,7 +1236,7 @@ def run_method(inst, method_id, seed):
 #      (archive x_u, archive F), which appears to be an indexing slip, since
 #      the paper describes the models as mapping x_u to the LL optimum. This
 #      re-implementation fits them on (archive x_u, archive x_l*), as the
-#      paper describes. [NEEDS AUTHOR CHECK: confirm against the paper.]
+#      paper describes (confirmed against Jiang et al. 2024, Section III-C and Algorithm 4).
 #   5. Kriging: the study's own GPSurrogate (squared-exponential kernel) is
 #      used, but with its lengthscale chosen by maximum marginal likelihood
 #      over a log-spaced grid at every refit, since DACE Kriging (used by
