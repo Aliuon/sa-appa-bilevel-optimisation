@@ -1,12 +1,46 @@
-# Phase 7 report: Part A5 (held-out surrogate fidelity)
+# Phase 7 report (final)
 
-Status, 7 October 2026. A5 is complete (20 instances). B1 is still awaiting the author's decision. The manuscript has not been edited.
+Status, 8 October 2026: Phase 7 is complete and the manuscript has been updated (author approved). The PDF is 56 pages, with 0 LaTeX errors and 0 undefined references. One [NEEDS AUTHOR CHECK] remains: the release DOI.
 
-## What was measured
+## 1. Manifest
 
-For each of TP1 to TP8 and SMD1 to SMD12 at (3, 3), the lower-median SA-APPA run (M1, rule fixed in advance: the 15th of 30 runs by final θ) was re-run with the same seed to recover the GP of θ that SA-APPA held at the end of the run. That GP was then evaluated on held-out Latin hypercube points (400 for TP, 200 for SMD; seed 20261007) that were never used in any run. The true θ at each point comes from the exact QP solution (TP3, TP8) or from a reference DE solve of the LL (population 30·n_ll, 300 generations, best of 2 seeds). Points with no LL-feasible response were dropped.
+`paper_figures_phase7/manifest.json` lists 84 figures. Each figure is a single panel, saved as .eps, .pdf and .png with a caption file, and all fills are opaque.
 
-All 20 re-runs reproduce the stored trajectories (largest relative deviation 4.8e-8, tolerance 1e-6). No locked result was changed.
+| Part | Figures | What they show |
+|---|---|---|
+| A1 | 2 | TP3 ground truth (exact QP) |
+| A2 | 6 | SA-APPA's GP of θ on TP3 after the initial design and at the end of the run |
+| A3 | 7 | Constraint GPs on TP3, TP4, TP5, TP7 and TP8 |
+| A4 | 2 | TP3 y*(x) |
+| A5 | 20 | Held-out fidelity |
+| A6 | 3 | SMD6 diagnosis and the tie-break result |
+| B1 | 16 | Budget composition |
+| B2 | 28 | Evaluations to target |
+
+### Placement in the manuscript
+
+The main text (Section 5.11) has three figures:
+
+- TP3 truth beside the final GP mean (A1b and A2d, two separate files);
+- B1 on TP1–TP9 for M1 and M10–M14;
+- B2 at the 1e-2 target on TP1–TP9 for M1 and M10–M14.
+
+Appendix F has nine figures:
+
+- A2e, A2f and A3 (TP3, constraint 1);
+- A6a, A6b and A6c;
+- the three SMD B1 figures;
+- B2 at the target of 1 on SMD (3,3).
+
+Appendix F also has five tables:
+
+- A5 fidelity;
+- SMD6 means with the locked and the tie-break solve;
+- scenario tests with the tie-break;
+- B1 by family;
+- B2 success counts.
+
+All other figures are in the code package.
 
 ## A5 coverage table
 
@@ -35,35 +69,85 @@ All 20 re-runs reproduce the stored trajectories (largest relative deviation 4.8
 
 *Locked best θ* is the stored final value of the selected run; "none feasible" means that run ended without a feasible incumbent. *RMSE / range* divides the RMSE by the range of the true θ over the held-out points.
 
-## Reading
 
-1. The ±2σ intervals are far too narrow. Coverage is at most 2.5% on 18 of 20 instances against a nominal 95%. The exceptions are TP1 (52%) and TP6 (78%), where θ varies over a small range. On the other 18 instances the RMSE is between 60 and 20,000 times the mean predictive standard deviation. The cause is the one found in A2: the GP uses signal variance 1 on unscaled outputs, so σ does not carry the scale of θ.
-2. The posterior mean is reasonable on most instances. RMSE is below 7% of the θ range on 14 of 20 instances.
-3. Four instances are poor: TP7 (44% of range), SMD6 (53%), TP2 (20%) and SMD10/SMD12 (12 to 13%). On SMD6 the GP mean spans roughly −250 to 800 while the true θ lies in 0 to 400 (figure A5_smd6_p3q3).
-4. The lengthscale shown is the value at the end of the run. It is re-estimated by the median heuristic at every refit (see the open Table 3 wording item).
+## 2. SMD6
 
-## Flags
+### Diagnosis
 
-- [NEEDS AUTHOR CHECK] SMD6 (3,3): a possible explanation is that SA-APPA's training targets came from the 60-solve nested DE, whose LL responses on SMD6 may differ from the reference DE. A difference in the LL responses would make the GP fit a different θ surface. This has not been tested.
-- [NEEDS AUTHOR CHECK] TP4, SMD11 and SMD12: the lower-median run has no feasible incumbent, so at least 16 of the 30 runs are infeasible or the rule placed infeasible runs before feasible ones. The fidelity numbers are still valid (they measure the GP, not the incumbent). Please confirm the rule is acceptable before any A5 figure for these instances is cited.
-- Drops are large on TP2 (310 of 400) and TP6 (190 of 400) because much of the box has no LL-feasible response; those RMSEs describe the feasible part only.
+The LL of SMD6 is optimal on a whole line t1 = t2, and F adds 2t². The nested DE solve therefore returns θ_opt + 2t² with t arbitrary.
 
-## Figures
+- **Training targets:** the gap at SA-APPA's training points has median 32.7 and maximum 180.7.
+- **SA-APPA's GP:** RMSE 204 against the optimistic θ.
+- **Same GP rule, consistent targets:** RMSE 10.0. This is a diagnostic, not an SA-APPA run.
 
-There are 20 files, A5_<instance>.{eps,pdf,png}, each with a .caption.txt, listed in manifest.json. Each figure is a single panel with opaque fills. The captions now state the mean σ, because the error bars are mostly hidden behind the markers.
+### Fix chosen: optimistic tie-break after each LL solve
 
-## Code propagation
+After each LL solve returns a point, SLSQP minimises F subject to f ≤ f0 + 1e-6·max(1, |f0|), starting from that point. The result is kept only if it lowers F.
 
-- `sa_appa_figures/figures_phase7.py`: the A5 caption now states the mean σ.
-- `SA_APPA_4nd.py`: rebuilt (4,109 lines), compiles.
-- `SA_APPA_2nd.m`: the same caption change.
+- This is the strong Stackelberg selection of D'Amato et al. (2012), verified from the full text you supplied and now in the bibliography.
+- **Cost:** a median of 9471 F evaluations and 10028 f evaluations per run.
+- **Applied to SMD6 only.** On an inaccurate LL solve, the tie-break exploits the sub-optimal level set: on SMD10 (3,3) a single test moved F from 2.01 to 0.29. SMD11's F is constant over its tie, so it is unaffected.
 
-## Still pending
+### Sensitivity run
 
-- B1 (budget composition): the author must choose one of three options.
-  1. Draw it from the 1,224 reproducing runs (TP1 to TP9 and SMD at (3,3)), with a caption note.
-  2. Resume the larger SMD scales.
-  3. Drop B1.
+All 14 configurations × 3 SMD6 scales × 30 runs = 1,260 runs, with the same seeds and budget. The locked results are unchanged.
 
-  The instrumented re-run (`instrument_ll.py`) has not been restarted.
-- The full Phase 7 deliverables pack (manifest, fidelity table, B2 tables, diff report, figure text drafts) follows once B1 is decided.
+- **SA-APPA's own GP on SMD6 (3,3):** RMSE 7.5 (3% of the range), correlation 0.99, coverage 1.5%. Calibration is unchanged.
+- **Rank of M1 on SMD6:**
+  - (3,3): 10 → 8;
+  - (10,10): 8 → 11;
+  - (30,30): 8 → 11.
+
+  Most configurations gain too; M14's mean falls to 0.39, 3.57 and 0.07 at the three scales.
+- **Scenario tests (Conover F-approximation p-values):** no decision changes, before or after the Holm correction, and every scenario keeps its best-ranked configuration. Scenario 4's raw p rises from 0.0147 to 0.0359; it is still not significant after Holm.
+
+| Scenario | Question | p locked | p tie-break | best locked | best tie-break |
+|---|---|---|---|---|---|
+| 1 | Initial design | 0.173 | 0.452 | M1 | M1 |
+| 2 | GA hybridisation | 0.279 | 0.441 | M1 | M1 |
+| 3 | Search engine | 8.6e-10 | 8.6e-10 | M6 | M6 |
+| 4 | Constraint handling | 0.0147 | 0.0359 | M1 | M1 |
+| 5 | Step-size rule | 2.71e-06 | 2.71e-06 | M9 | M9 |
+| 6 | Surrogate-assisted engine baselines | 8.19e-14 | 8.19e-14 | M11 | M11 |
+| 7 | Fully nested baseline | 0.761 | 0.743 | M1 | M1 |
+| 8 | Published surrogate-assisted bilevel method | 3.98e-08 | 3.98e-08 | M14 | M14 |
+
+## 3. TP4, SMD11 and SMD12
+
+The rule fixed in advance was kept: the lower median, with runs that found no feasible point placed last. On these three instances fewer than 15 of the 30 runs are feasible.
+
+- They are marked † in the A5 table and are not discussed individually in the main text.
+- Their fidelity values are typical of the table.
+
+## 4. B1 (budget composition)
+
+All 3,080 instrumented runs are complete: runs 0–4 for every configuration on every instance, with the same seeds, the LL objective counted, and a relative tolerance of 1e-6.
+
+- 74 runs (2.4%) did not reproduce their stored trajectory, all with the PPA engine (M1, M2, M3, M7, M8). They are listed in `B1_nonreproducing_runs.csv` and excluded from the medians.
+- The counter itself is neutral: a run gives the same result with and without it.
+- UL evaluations are at most 0.77% of the total.
+
+## 5. B2 (evaluations to target)
+
+The success counts are in Appendix F, Table 26, and in `B2_success_counts_t1.csv` and `B2_success_counts_t2.csv`.
+
+## 6. Code propagation
+
+**Python modules:**
+
+- `phase7_smd6_check.py`
+- `optimistic_ll.py`
+- `run_optimistic_ll.py`
+- `analysis_optll.py`
+- `phase7_smd6_optll_fidelity.py`
+- `figures_phase7.py` (new figures A6 and A6c; B1 skips families with no data)
+- `instrument_ll.py` (order changed only)
+
+**Single file:** `SA_APPA_4nd.py` (4,594 lines) contains all of the above. With the tie-break on, it reproduces the module results exactly (M1 and M14 on SMD6, run 0).
+
+**MATLAB:** `SA_APPA_2nd.m` has the A6 diagnosis (`phase7PartA6`), tested in Octave. The tie-break sensitivity run is not ported, because MATLAB's constrained local solver (`fmincon`) needs the Optimization Toolbox; the Python files are the reference.
+
+## 7. Flags
+
+- [NEEDS AUTHOR CHECK] Release DOI in "Code and data availability" (unchanged).
+- The manuscript cites Sinha and Shaikh only as "similar in kind" for these analyses; it makes no claim about their figures.
