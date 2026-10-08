@@ -132,6 +132,7 @@ def run_phase7(workers):
     """MAKE_EXTRA_FIGS: Part A data (re-runs under locked seeds, checked before use), the
     instrumented runs 0-4 for B1, then every Phase 7 figure."""
     phase7_run_main(("A1", "A2", "A3", "A5"))
+    smd6_check_main()
     instrument_ll_main(runs=5, workers=workers)
     figures_phase7_main()
 

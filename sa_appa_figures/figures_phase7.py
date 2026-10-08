@@ -285,6 +285,44 @@ def fig_A5():
         save(fig, f"A5_{iid.lower()}", cap, dict(part="A5", instance=iid, run=m["run"], seed=m["run"]))
 
 
+def fig_A6():
+    """SMD6 at (3, 3): effect of the non-unique LL response (phase7_smd6_check.py)."""
+    cj = json.load(open(os.path.join(P7, "smd6_check.json")))
+    d = np.load(os.path.join(P7, "smd6_check.npz"))
+    tr = cj["training"]
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["Ft_opt"], d["Ft"], "o", ms=3, color=P[0])
+    lo, hi = float(min(d["Ft_opt"].min(), d["Ft"].min())), float(max(d["Ft_opt"].max(), d["Ft"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("value returned by the nested LL solve")
+    ax.set_title("SMD6 (3, 3), training points", fontsize=8)
+    cap = (f"SMD6 at (3, 3): the {tr['n']} UL values that SA-APPA trained its GP on (run {tr['run']}, the "
+           "lower-median run) against the optimistic theta at the same points. The LL of SMD6 is optimal on a "
+           "whole line of tail variables (t1 = t2), and the UL objective adds the squared tail, so the nested "
+           "differential-evolution solve returns theta_opt + 2 t^2 with t effectively arbitrary. The gap is "
+           f"non-negative everywhere, with median {tr['gap_median']:.1f} and maximum {tr['gap_max']:.1f}; the "
+           "dashed line is equality.")
+    save(fig, "A6a_smd6_training_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
+
+    a, c = cj["a5_vs_optimistic"], cj["counterfactual_consistent_targets"]
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["th_opt"], d["mu"], "s", ms=2.6, color=lighten(GRAY, 0.35), label="SA-APPA's GP (targets as observed)")
+    ax.plot(d["th_opt"], d["mu_cf"], "o", ms=2.6, color=P[0], label="same GP rule, optimistic targets")
+    lo = float(min(d["th_opt"].min(), d["mu"].min(), d["mu_cf"].min()))
+    hi = float(max(d["th_opt"].max(), d["mu"].max(), d["mu_cf"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("GP mean $\\mu_\\theta(\\mathbf{x})$")
+    ax.set_title("SMD6 (3, 3), held-out points", fontsize=8)
+    ax.legend(loc="upper left", fontsize=6.5, frameon=True, framealpha=1, edgecolor="#e4e3df")
+    cap = (f"SMD6 at (3, 3), {cj['reference_truth']['n']} held-out points: GP mean against the optimistic theta. Grey squares: "
+           f"the GP SA-APPA held at the end of run {tr['run']} (RMSE {a['rmse']:.0f}, correlation {a['corr']:.2f}). Blue "
+           "circles: a diagnostic GP with the same kernel, hyperparameter rule and 60 training inputs, but trained "
+           f"on the optimistic theta at those inputs (RMSE {c['rmse']:.1f}, correlation {c['corr']:.2f}). The "
+           "diagnostic GP is not an SA-APPA run; it shows that the poor fit comes from the inconsistent LL "
+           "responses rather than from the GP model.")
+    save(fig, "A6b_smd6_consistent_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
+
+
 # ============================================================================ PART B
 def load_traj():
     out = {}
@@ -429,6 +467,9 @@ def fig_B1():
     b1.to_csv(os.path.join(OUT, "B1_budget_composition.csv"), index=False)
     for sk, inst in SETS.items():
         inst = [i for i in inst if i in SUITE]
+        if not b1.instance_id.isin(inst).any():
+            print(f"B1: no instrumented runs yet for set {sk}; skipped")
+            continue
         for gk, methods in GROUPS.items():
             fig, ax = bar_chart(b1, "total", inst, methods, "median evaluations (log scale)", logy=True,
                                 annotate_missing=False, stacked=("n_ul",))
@@ -452,7 +493,7 @@ def fig_B1():
 
 
 if __name__ == "__main__":
-    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "B2", "B1"]
+    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1"]
     for w in which:
         globals()[f"fig_{w}"]()
     mp_ = os.path.join(OUT, "manifest.json")

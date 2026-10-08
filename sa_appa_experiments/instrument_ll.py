@@ -105,7 +105,7 @@ def main():
     ap.add_argument("--workers", type=int, default=2)
     a = ap.parse_args()
     order = ([i for i in SUITE if i.startswith("TP")] + [i for i in SUITE if i.endswith("p3q3")] +
-             [i for i in SUITE if i.endswith("p30q30")] + [i for i in SUITE if i.endswith("p10q10")])
+             [i for i in SUITE if i.endswith("p10q10")] + [i for i in SUITE if i.endswith("p30q30")])
     done = set()
     if os.path.exists(OUT):
         with open(OUT) as fh:

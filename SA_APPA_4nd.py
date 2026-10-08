@@ -3390,7 +3390,7 @@ def instrument_ll_main(runs=5, workers=2):
     import types
     a = types.SimpleNamespace(runs=runs, workers=workers)
     order = ([i for i in SUITE if i.startswith("TP")] + [i for i in SUITE if i.endswith("p3q3")] +
-             [i for i in SUITE if i.endswith("p30q30")] + [i for i in SUITE if i.endswith("p10q10")])
+             [i for i in SUITE if i.endswith("p10q10")] + [i for i in SUITE if i.endswith("p30q30")])
     done = set()
     if os.path.exists(LL_COUNTS_CSV):
         with open(LL_COUNTS_CSV) as fh:
@@ -3411,6 +3411,106 @@ def instrument_ll_main(runs=5, workers=2):
             if n % 50 == 0 or n == len(work):
                 print(f"{n}/{len(work)} done, {bad} mismatches, {(time.time()-t0)/60:.1f} min", flush=True)
     fh.close()
+
+
+# ================================================================================================
+# PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK (phase7_smd6_check.py)
+# ================================================================================================
+
+# phase7_smd6_check.py
+# ====================
+# Tests why the A5 surrogate fit on SMD6 at (3, 3) is poor.
+#
+# SMD6 has a continuum of LL optima: the LL objective contains sum((t[i+1] - t[i])^2) over the
+# s = 2 'tail' variables t = x_l1[q:q+s], so every t1 = t2 in [-5, 10] is LL-optimal, while the UL
+# objective contains +sum(t^2). Under the optimistic convention the response is t = 0, and
+#     smd6_theta_opt(x) = sum x_u1^2 + sum x_u2^2 - sum (x_u2 - clip(x_u2, -pi/2, pi/2))^2.
+# Any DE solve of the LL (the 60-solve nested DE inside SA-APPA, or the A5 reference DE) returns
+# some arbitrary point on that line, so theta = smd6_theta_opt + 2 t^2 with t effectively random.
+#
+# Checks (nothing locked is modified):
+#   1. the closed form agrees with an optimistic numerical solve at a few points;
+#   2. at SA-APPA's own training points (run 1, the lower-median run) the targets it was given,
+#      F_train, differ from smd6_theta_opt by 2 t^2;
+#   3. the A5 'reference' truth differs from smd6_theta_opt in the same way;
+#   4. the A5 metrics for SMD6 recomputed against smd6_theta_opt;
+#   5. a counterfactual diagnostic: the same GP class and hyperparameter rule fitted to the same 60
+#      training inputs, but with the optimistic targets smd6_theta_opt(X_train), scored on the held-out
+#      points. This is not an SA-APPA run; it isolates how much of the error comes from the
+#      inconsistent LL responses rather than from the GP model.
+# Writes results/phase7/smd6_check.json.
+S6_IID, S6_P, S6_Q, S6_R, S6_S = "SMD6_p3q3", 3, 3, 2, 2
+
+
+def smd6_theta_opt(X):
+    X = np.atleast_2d(X)
+    xu1, xu2 = X[:, :S6_P], X[:, S6_P:]
+    c = np.clip(xu2, -np.pi / 2 + 1e-6, np.pi / 2 - 1e-6)
+    return np.sum(xu1 ** 2, 1) + np.sum(xu2 ** 2, 1) - np.sum((xu2 - c) ** 2, 1)
+
+
+def smd6_y_opt(x):
+    xu2 = x[S6_P:]
+    return np.concatenate([np.zeros(S6_Q + S6_S), np.clip(xu2, -np.pi / 2 + 1e-6, np.pi / 2 - 1e-6)])
+
+
+def smd6_check_main():
+    inst = SUITE[S6_IID]
+    out = {}
+    # 1. closed form check: at smd6_y_opt the LL objective is at its minimum (f gradient ~ 0 on the
+    #    free directions) and theta equals F(x, smd6_y_opt)
+    rng = np.random.default_rng(1)
+    errs = []
+    for _ in range(20):
+        x = rng.uniform(inst.x_bounds[:, 0], inst.x_bounds[:, 1])
+        y = smd6_y_opt(x)
+        # LL optimality: no feasible y gives a lower f (local check from 5 random starts)
+        fbest = min(minimize(lambda z: inst.f(x, z), rng.uniform(inst.y_bounds[:, 0], inst.y_bounds[:, 1]),
+                             bounds=list(map(tuple, inst.y_bounds)), method="L-BFGS-B").fun for _ in range(5))
+        errs.append(dict(f_at_yopt=float(inst.f(x, y)), f_best_local=float(fbest),
+                         theta_closed=float(smd6_theta_opt(x)[0]), F_at_yopt=float(inst.F(x, y))))
+    out["closed_form_check"] = dict(
+        max_abs_theta_diff=max(abs(e["theta_closed"] - e["F_at_yopt"]) for e in errs),
+        max_f_gap=max(e["f_at_yopt"] - e["f_best_local"] for e in errs))
+    # 2. SA-APPA's training targets
+    run, best = median_run(S6_IID)
+    snaps, chk = rerun_with_snapshots(S6_IID, run)
+    s = snaps["final"]
+    Ft, Xt = np.asarray(s["F"], float), np.asarray(s["X"], float)
+    gap_t = Ft - smd6_theta_opt(Xt)
+    out["training"] = dict(run=run, reproduces=chk["reproduces"], max_rel_dev=chk["max_rel_dev"],
+                           n=int(len(Ft)), gap_min=float(gap_t.min()), gap_median=float(np.median(gap_t)),
+                           gap_max=float(gap_t.max()), gap_rms=float(np.sqrt(np.mean(gap_t ** 2))),
+                           implied_abs_t_median=float(np.median(np.sqrt(np.maximum(gap_t, 0) / 2))))
+    # 3. A5 reference truth vs smd6_theta_opt; 4. metrics against smd6_theta_opt
+    d = np.load(os.path.join(P7_DIR, "a5_SMD6_p3q3.npz"))
+    Xh, th_ref, mu, sd = d["Xh"], d["th"], d["mu"], d["sd"]
+    th_opt = smd6_theta_opt(Xh)
+    gap_h = th_ref - th_opt
+    out["reference_truth"] = dict(n=int(len(Xh)), gap_min=float(gap_h.min()), gap_median=float(np.median(gap_h)),
+                                  gap_max=float(gap_h.max()), gap_rms=float(np.sqrt(np.mean(gap_h ** 2))))
+
+    def met(truth):
+        e = mu - truth
+        return dict(rmse=float(np.sqrt(np.mean(e ** 2))), max_abs=float(np.max(np.abs(e))),
+                    coverage_2sd=float(np.mean(np.abs(e) <= 2 * sd)), theta_range=float(np.ptp(truth)),
+                    corr=float(np.corrcoef(mu, truth)[0, 1]))
+    out["a5_vs_reference"] = met(th_ref)
+    out["a5_vs_optimistic"] = met(th_opt)
+    pass  # (was: from gp import GPSurrogate)
+    gp_cf = GPSurrogate().fit(Xt, smd6_theta_opt(Xt))
+    mu_cf, sd_cf = gp_cf.predict(Xh)
+    e = mu_cf - th_opt
+    out["counterfactual_consistent_targets"] = dict(
+        rmse=float(np.sqrt(np.mean(e ** 2))), max_abs=float(np.max(np.abs(e))),
+        coverage_2sd=float(np.mean(np.abs(e) <= 2 * sd_cf)), theta_range=float(np.ptp(th_opt)),
+        corr=float(np.corrcoef(mu_cf, th_opt)[0, 1]), lengthscale=float(gp_cf.lengthscale))
+    gp_same = s["theta_gp"]
+    out["sa_appa_gp_lengthscale"] = float(gp_same.lengthscale)
+    np.savez(os.path.join(P7_DIR, "smd6_check.npz"), mu_cf=mu_cf, sd_cf=sd_cf, Xh=Xh, th_ref=th_ref, th_opt=th_opt, mu=mu, sd=sd,
+             Xt=Xt, Ft=Ft, Ft_opt=smd6_theta_opt(Xt))
+    json.dump(out, open(os.path.join(P7_DIR, "smd6_check.json"), "w"), indent=1)
+    print(json.dumps(out, indent=1))
 
 
 # ================================================================================================
@@ -3687,6 +3787,44 @@ def fig_A5():
         p7_save(fig, f"A5_{iid.lower()}", cap, dict(part="A5", instance=iid, run=m["run"], seed=m["run"]))
 
 
+def fig_A6():
+    """SMD6 at (3, 3): effect of the non-unique LL response (phase7_smd6_check.py)."""
+    cj = json.load(open(os.path.join(P7_DIR, "smd6_check.json")))
+    d = np.load(os.path.join(P7_DIR, "smd6_check.npz"))
+    tr = cj["training"]
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["Ft_opt"], d["Ft"], "o", ms=3, color=P[0])
+    lo, hi = float(min(d["Ft_opt"].min(), d["Ft"].min())), float(max(d["Ft_opt"].max(), d["Ft"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("value returned by the nested LL solve")
+    ax.set_title("SMD6 (3, 3), training points", fontsize=8)
+    cap = (f"SMD6 at (3, 3): the {tr['n']} UL values that SA-APPA trained its GP on (run {tr['run']}, the "
+           "lower-median run) against the optimistic theta at the same points. The LL of SMD6 is optimal on a "
+           "whole line of tail variables (t1 = t2), and the UL objective adds the squared tail, so the nested "
+           "differential-evolution solve returns theta_opt + 2 t^2 with t effectively arbitrary. The gap is "
+           f"non-negative everywhere, with median {tr['gap_median']:.1f} and maximum {tr['gap_max']:.1f}; the "
+           "dashed line is equality.")
+    p7_save(fig, "A6a_smd6_training_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
+
+    a, c = cj["a5_vs_optimistic"], cj["counterfactual_consistent_targets"]
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["th_opt"], d["mu"], "s", ms=2.6, color=p7_lighten(GRAY, 0.35), label="SA-APPA's GP (targets as observed)")
+    ax.plot(d["th_opt"], d["mu_cf"], "o", ms=2.6, color=P[0], label="same GP rule, optimistic targets")
+    lo = float(min(d["th_opt"].min(), d["mu"].min(), d["mu_cf"].min()))
+    hi = float(max(d["th_opt"].max(), d["mu"].max(), d["mu_cf"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("GP mean $\\mu_\\theta(\\mathbf{x})$")
+    ax.set_title("SMD6 (3, 3), held-out points", fontsize=8)
+    ax.legend(loc="upper left", fontsize=6.5, frameon=True, framealpha=1, edgecolor="#e4e3df")
+    cap = (f"SMD6 at (3, 3), {cj['reference_truth']['n']} held-out points: GP mean against the optimistic theta. Grey squares: "
+           f"the GP SA-APPA held at the end of run {tr['run']} (RMSE {a['rmse']:.0f}, correlation {a['corr']:.2f}). Blue "
+           "circles: a diagnostic GP with the same kernel, hyperparameter rule and 60 training inputs, but trained "
+           f"on the optimistic theta at those inputs (RMSE {c['rmse']:.1f}, correlation {c['corr']:.2f}). The "
+           "diagnostic GP is not an SA-APPA run; it shows that the poor fit comes from the inconsistent LL "
+           "responses rather than from the GP model.")
+    p7_save(fig, "A6b_smd6_consistent_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
+
+
 # ============================================================================ PART B
 def load_traj():
     out = {}
@@ -3831,6 +3969,9 @@ def fig_B1():
     b1.to_csv(os.path.join(P7_FIG_DIR, "B1_budget_composition.csv"), index=False)
     for sk, inst in SETS.items():
         inst = [i for i in inst if i in SUITE]
+        if not b1.instance_id.isin(inst).any():
+            print(f"B1: no instrumented runs yet for set {sk}; skipped")
+            continue
         for gk, methods in GROUPS.items():
             fig, ax = bar_chart(b1, "total", inst, methods, "median evaluations (log scale)", logy=True,
                                 annotate_missing=False, stacked=("n_ul",))
@@ -3853,7 +3994,7 @@ def fig_B1():
     return b1
 
 
-def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "B2", "B1")):
+def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1")):
     for w in which:
         globals()[f"fig_{w}"]()
     mp_ = os.path.join(P7_FIG_DIR, "manifest.json")
@@ -3995,6 +4136,7 @@ def run_phase7(workers):
     """MAKE_EXTRA_FIGS: Part A data (re-runs under locked seeds, checked before use), the
     instrumented runs 0-4 for B1, then every Phase 7 figure."""
     phase7_run_main(("A1", "A2", "A3", "A5"))
+    smd6_check_main()
     instrument_ll_main(runs=5, workers=workers)
     figures_phase7_main()
 

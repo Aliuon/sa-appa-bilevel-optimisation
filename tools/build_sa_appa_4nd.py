@@ -180,14 +180,21 @@ def main():
                       "    a = types.SimpleNamespace(runs=runs, workers=workers)")
     out.append(section("PHASE 7 PART B1: INSTRUMENTED RE-RUN (instrument_ll.py)", src))
 
+    src = strip_module(read(os.path.join(EXP, "phase7_smd6_check.py")))
+    src = re.sub(r'^OUT = [^\n]*\n', "", src, flags=re.M)
+    src = re.sub(r"\bP\.", "", src)
+    src = sub_words(src, {"OUT": "P7_DIR", "IID": "S6_IID", "P_": "S6_P", "Q_": "S6_Q", "R_": "S6_R", "S_": "S6_S",
+                          "main": "smd6_check_main", "theta_opt": "smd6_theta_opt", "y_opt": "smd6_y_opt"})
+    out.append(section("PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK (phase7_smd6_check.py)", src))
+
     src = strip_module(read(os.path.join(FIG, "figures_phase7.py")))
     src = re.sub(r'^HERE = [^\n]*\nEXP = [^\n]*\nRES = [^\n]*\nP7 = [^\n]*\nOUT = [^\n]*\n', "", src, flags=re.M)
     src = sub_words(src, {"OUT": "P7_FIG_DIR", "RES": "RESULTS_DIR", "P7": "P7_DIR", "save": "p7_save",
                           "lighten": "p7_lighten", "LABEL": "P7_LABEL", "MANIFEST": "P7_MANIFEST", "J": "p7_J"})
     mb = read(os.path.join(FIG, "figures_phase7.py"))
     mb = mb[mb.find('if __name__ == "__main__":'):]
-    mb = mb.replace('if __name__ == "__main__":\n    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "B2", "B1"]',
-                    'def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "B2", "B1")):')
+    mb = mb.replace('if __name__ == "__main__":\n    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1"]',
+                    'def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1")):')
     mb = mb.replace("MANIFEST", "P7_MANIFEST").replace("OUT", "P7_FIG_DIR")
     out.append(section("PHASE 7 FIGURES (figures_phase7.py)", src + "\n\n" + mb))
 

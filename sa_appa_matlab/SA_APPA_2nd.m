@@ -262,6 +262,7 @@
 %   phase7Figures          -- orchestrator
 %   phase7PartA_TP3        -- A1, A2, A4 on TP3
 %   phase7PartA3 / phase7PartA5 -- constraint maps, held-out fidelity
+%   phase7PartA6 -- SMD6: non-unique LL response, diagnostic GP on optimistic targets
 %   phase7PartB            -- B1 budget composition, B2 evaluations to target
 %   (line numbers above refer to the file before the Phase 7 additions)
 
@@ -2672,6 +2673,7 @@ function phase7Figures(R, suite, cfg, figDir, quick)
     for id = a5
         if have(id{1}), phase7PartA5(R, suite, cfg, figDir, o, id{1}, fidCap, fidFid); end
     end
+    if have('SMD6_p3q3'), phase7PartA6(R, suite, cfg, figDir, o, fidCap, fidFid); end
     phase7PartB(R, figDir, o, fidCap);
     fclose(fidCap); fclose(fidFid);
 end
@@ -2895,6 +2897,70 @@ function phase7PartA5(R, suite, cfg, figDir, o, id, fidCap, fidFid)
         'The mean predictive standard deviation is %.2g, so most bars are narrower than the markers.'], ...
         id, M.n, sum(~keep), runId, M.rmse, 100 * M.coverage, M.meanSd);
     phase7Save(fig, figDir, sprintf('A5_%s', lower(id)), cap, fidCap);
+end
+
+% ---------------------------------------------------------------- Part A6 (SMD6, non-unique LL response)
+function phase7PartA6(R, suite, cfg, figDir, o, fidCap, fidFid)
+    % SMD6 has a continuum of LL optima (t1 = t2 for the s = 2 tail variables) while the UL
+    % objective adds +sum(t.^2), so the optimistic response has t = 0 and
+    %   theta_opt(x) = sum(xu1.^2) + sum(xu2.^2) - sum((xu2 - clip(xu2, -pi/2, pi/2)).^2).
+    % The nested DE solve returns an arbitrary point on the optimal line instead. This part
+    % compares SA-APPA's training targets with theta_opt and fits a diagnostic GP (same rule,
+    % same inputs) to theta_opt; the diagnostic GP is not a run of any configuration.
+    id = 'SMD6_p3q3';
+    inst = phase7Inst(suite, id);
+    [runId, idx] = phase7MedianRun(R, 'M1', id);
+    [snaps, chk] = phase7Rerun(R, inst, 'M1', runId, idx, cfg);
+    if ~chk.reproduces
+        warning('phase7: %s run %d does not reproduce; A6 skipped.', id, runId); return;
+    end
+    pU = size(inst.xb, 1) - 2;
+    lo = -pi / 2 + 1e-6; hi = pi / 2 - 1e-6;
+    thOpt = @(X) sum(X(:, 1:pU) .^ 2, 2) + sum(X(:, pU + 1:end) .^ 2, 2) ...
+        - sum((X(:, pU + 1:end) - min(max(X(:, pU + 1:end), lo), hi)) .^ 2, 2);
+    Xt = snaps.final.X; Ft = snaps.final.F(:); Fo = thOpt(Xt);
+    gap = Ft - Fo;
+    Xh = lhsSample(newStream(o.heldSeed), inst.xb, o.nHeldSMD);
+    to = thOpt(Xh);
+    [mu, ~] = surrogatePredict(snaps.final.theta, Xh);
+    cf = gpFit(Xt, Fo);
+    [muCf, ~] = gpPredict(cf, Xh);
+    rmse = sqrt(mean((mu - to) .^ 2)); rmseCf = sqrt(mean((muCf - to) .^ 2));
+    fprintf(fidFid, 'A6,%s,%d,final,heldout_optimistic,%d,%.6g,%.6g,,,%d,%.3g\n', id, runId, numel(to), rmse, ...
+        max(abs(mu - to)), chk.reproduces, chk.maxRelDev);
+    fprintf(fidFid, 'A6,%s,%d,diagnostic,heldout_optimistic,%d,%.6g,%.6g,,,%d,%.3g\n', id, runId, numel(to), rmseCf, ...
+        max(abs(muCf - to)), chk.reproduces, chk.maxRelDev);
+    blue = [0.165 0.471 0.839]; grey = [0.32 0.32 0.31];
+
+    fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'inches', 'Position', [1 1 3.4 3.2]);
+    ax = axes('Parent', fig); hold(ax, 'on'); box(ax, 'on');
+    plot(ax, Fo, Ft, 'o', 'MarkerSize', 3, 'MarkerFaceColor', blue, 'MarkerEdgeColor', blue);
+    lims = [min([Fo; Ft]), max([Fo; Ft])];
+    plot(ax, lims, lims, '--', 'Color', grey);
+    xlabel(ax, 'optimistic \theta(x)'); ylabel(ax, 'value returned by the nested LL solve');
+    title(ax, 'SMD6 (3, 3), training points', 'FontSize', 8);
+    cap = sprintf(['SMD6 at (3, 3): the %d UL values SA-APPA trained its GP on (run %d, lower-median run) against ' ...
+        'the optimistic theta at the same points. Gap median %.1f, maximum %.1f, minimum %.3g (non-negative).'], ...
+        numel(Ft), runId, median(gap), max(gap), min(gap));
+    phase7Save(fig, figDir, 'A6a_smd6_training_targets', cap, fidCap);
+
+    fig = figure('Visible', 'off', 'Color', 'w', 'Units', 'inches', 'Position', [1 1 3.4 3.2]);
+    ax = axes('Parent', fig); hold(ax, 'on'); box(ax, 'on');
+    h1 = plot(ax, to, mu, 's', 'MarkerSize', 3, 'MarkerFaceColor', [0.62 0.62 0.61], 'MarkerEdgeColor', [0.62 0.62 0.61]);
+    h2 = plot(ax, to, muCf, 'o', 'MarkerSize', 3, 'MarkerFaceColor', blue, 'MarkerEdgeColor', blue);
+    lims = [min([to; mu; muCf]), max([to; mu; muCf])];
+    plot(ax, lims, lims, '--', 'Color', grey);
+    xlabel(ax, 'optimistic \theta(x)'); ylabel(ax, 'GP mean \mu_\theta(x)');
+    title(ax, 'SMD6 (3, 3), held-out points', 'FontSize', 8);
+    try
+        legend(ax, [h1 h2], {'SA-APPA''s GP (targets as observed)', 'same GP rule, optimistic targets'}, ...
+            'Location', 'northwest', 'FontSize', 6.5);
+    catch
+    end
+    cap = sprintf(['SMD6 at (3, 3), %d held-out points: GP mean against the optimistic theta. Grey: the GP SA-APPA ' ...
+        'held at the end of run %d (RMSE %.0f). Blue: a diagnostic GP with the same kernel, hyperparameter rule and ' ...
+        'training inputs, trained on the optimistic theta (RMSE %.1f). Not an SA-APPA run.'], numel(to), runId, rmse, rmseCf);
+    phase7Save(fig, figDir, 'A6b_smd6_consistent_targets', cap, fidCap);
 end
 
 % ---------------------------------------------------------------- Part B
