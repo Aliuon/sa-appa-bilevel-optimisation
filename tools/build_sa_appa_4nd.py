@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXP = os.path.join(ROOT, "sa_appa_experiments")
 FIG = os.path.join(ROOT, "sa_appa_figures")
 INTERNAL = r"(benchmark|gp|ll_solver|methods|methods_m14|scenarios|friedman_test|analysis|analysis_extra|" \
-           r"phase7_data|config|figures(\.\w+)?)"
+           r"phase7_data|phase7_smd6_check|optimistic_ll|config|figures(\.\w+)?)"
 
 
 def read(path):
@@ -25,6 +25,41 @@ def read(path):
 
 
 COLLECTED_IMPORTS = []
+
+OPTLL_PATCH = '''_OPTLL_ORIG = {}
+
+
+def patch():
+    """Single-file version: rebind the module-level LL solves to the tie-break wrappers."""
+    global ll_solve, _ll_solve_warm
+    if _OPTLL_ORIG:
+        return
+    _OPTLL_ORIG["ll_solve"], _OPTLL_ORIG["warm"] = ll_solve, _ll_solve_warm
+    base, base_warm = ll_solve, _ll_solve_warm
+
+    def ll_solve_opt(inst, x, seed=0, **kw):
+        y, _, _, _ = base(inst, x, seed=seed, **kw)
+        y = optimistic_refine(inst, x, y)
+        g = inst.g(x, y)
+        feas = bool(np.all(g <= 1e-6)) if g.size else True
+        return y, inst.F(x, y), inst.G(x, y), feas
+
+    def ll_solve_warm_opt(inst, x, seed, xl0=None, xl_near=None):
+        y, _, _, _, _ = base_warm(inst, x, seed, xl0=xl0, xl_near=xl_near)
+        y = optimistic_refine(inst, x, y)
+        g = inst.g(x, y)
+        feas = bool(np.all(g <= 1e-6)) if g.size else True
+        return y, inst.F(x, y), inst.G(x, y), feas, g
+
+    ll_solve, _ll_solve_warm = ll_solve_opt, ll_solve_warm_opt
+
+
+def unpatch():
+    global ll_solve, _ll_solve_warm
+    if _OPTLL_ORIG:
+        ll_solve, _ll_solve_warm = _OPTLL_ORIG.pop("ll_solve"), _OPTLL_ORIG.pop("warm")
+'''
+
 
 
 def collect_imports(src):
@@ -187,14 +222,51 @@ def main():
                           "main": "smd6_check_main", "theta_opt": "smd6_theta_opt", "y_opt": "smd6_y_opt"})
     out.append(section("PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK (phase7_smd6_check.py)", src))
 
+    # optimistic tie-break (SMD6 sensitivity run)
+    src = strip_module(read(os.path.join(EXP, "optimistic_ll.py")))
+    i = src.index("def patch():")
+    src = src[:i] + OPTLL_PATCH
+    out.append(section("PHASE 7: OPTIMISTIC TIE-BREAK FOR THE LL SOLVE (optimistic_ll.py)", src))
+
+    src = strip_module(read(os.path.join(EXP, "run_optimistic_ll.py")))
+    src = re.sub(r'^HERE = [^\n]*\nOUT = [^\n]*\nSUMMARY = [^\n]*\nTRAJ = [^\n]*\n', "", src, flags=re.M)
+    src = re.sub(r"\b(optimistic_ll|methods_m14|methods)\.", "", src)
+    src = sub_words(src, {"FIELDS": "OPTLL_FIELDS", "INSTANCES": "OPTLL_INSTANCES", "_init": "_optll_init",
+                          "_worker": "_optll_worker", "main": "run_optll_main"})
+    src = src.replace("def run_optll_main():\n    ap = argparse.ArgumentParser()\n"
+                      "    ap.add_argument(\"--runs\", type=int, default=30)\n"
+                      "    ap.add_argument(\"--workers\", type=int, default=2)\n    a = ap.parse_args()",
+                      "def run_optll_main(runs=30, workers=2):\n    import types\n"
+                      "    a = types.SimpleNamespace(runs=runs, workers=workers)\n"
+                      "    OUT = os.path.join(RESULTS_DIR, \"optll\")\n"
+                      "    SUMMARY = os.path.join(OUT, \"summary_optll.csv\")\n"
+                      "    TRAJ = os.path.join(OUT, \"trajectories_optll.jsonl\")")
+    assert "def run_optll_main(runs=30" in src
+    out.append(section("PHASE 7: SMD6 SENSITIVITY RUN WITH THE TIE-BREAK (run_optimistic_ll.py)", src))
+
+    src = strip_module(read(os.path.join(EXP, "analysis_optll.py")))
+    src = re.sub(r'^HERE = [^\n]*\nRES = [^\n]*\nJ = [^\n]*\n', "", src, flags=re.M)
+    src = sub_words(src, {"RES": "RESULTS_DIR", "J": "os.path.join(RESULTS_DIR, 'resub_numbers.json')",
+                          "friedman": "optll_friedman", "holm": "optll_holm", "main": "analysis_optll_main"})
+    out.append(section("PHASE 7: SCENARIO SENSITIVITY TO THE TIE-BREAK (analysis_optll.py)", src))
+
+    src = strip_module(read(os.path.join(EXP, "phase7_smd6_optll_fidelity.py")))
+    src = src.replace("optimistic_ll.patch()\n", "")
+    src = re.sub(r'^HERE = [^\n]*\nP7 = [^\n]*\nIID = [^\n]*\n', "", src, flags=re.M)
+    src = src.replace('os.path.join(HERE, "results", "optll"', 'os.path.join(RESULTS_DIR, "optll"')
+    src = sub_words(src, {"P7": "P7_DIR", "IID": "S6_IID", "main": "smd6_optll_fidelity_main",
+                          "theta_opt": "smd6_theta_opt"})
+    src = src.replace("def smd6_optll_fidelity_main():\n", "def smd6_optll_fidelity_main():\n    patch()\n")
+    out.append(section("PHASE 7: SA-APPA FIDELITY ON SMD6 WITH THE TIE-BREAK (phase7_smd6_optll_fidelity.py)", src))
+
     src = strip_module(read(os.path.join(FIG, "figures_phase7.py")))
     src = re.sub(r'^HERE = [^\n]*\nEXP = [^\n]*\nRES = [^\n]*\nP7 = [^\n]*\nOUT = [^\n]*\n', "", src, flags=re.M)
     src = sub_words(src, {"OUT": "P7_FIG_DIR", "RES": "RESULTS_DIR", "P7": "P7_DIR", "save": "p7_save",
                           "lighten": "p7_lighten", "LABEL": "P7_LABEL", "MANIFEST": "P7_MANIFEST", "J": "p7_J"})
     mb = read(os.path.join(FIG, "figures_phase7.py"))
     mb = mb[mb.find('if __name__ == "__main__":'):]
-    mb = mb.replace('if __name__ == "__main__":\n    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1"]',
-                    'def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1")):')
+    mb = mb.replace('if __name__ == "__main__":\n    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "A6c", "B2", "B1"]',
+                    'def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "A6c", "B2", "B1")):')
     mb = mb.replace("MANIFEST", "P7_MANIFEST").replace("OUT", "P7_FIG_DIR")
     out.append(section("PHASE 7 FIGURES (figures_phase7.py)", src + "\n\n" + mb))
 

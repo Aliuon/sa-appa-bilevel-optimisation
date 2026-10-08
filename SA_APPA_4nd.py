@@ -3514,6 +3514,329 @@ def smd6_check_main():
 
 
 # ================================================================================================
+# PHASE 7: OPTIMISTIC TIE-BREAK FOR THE LL SOLVE (optimistic_ll.py)
+# ================================================================================================
+
+# optimistic_ll.py
+# ================
+# Optimistic tie-break for the nested LL solve (Assumption A1), used only by the SMD6 sensitivity
+# run (run_optimistic_ll.py). The locked results were produced without it and are not changed.
+#
+# Why: when the LL has several optimal responses, the shared DE solve returns an arbitrary one,
+# so the UL value it reports is not theta(x) under the optimistic convention. On SMD6 this adds a
+# non-negative term 2 t^2 with t effectively random, which makes the training data of every
+# surrogate inconsistent (phase7_smd6_check.py).
+#
+# What: after the usual DE solve returns y0 with LL value f0, a local search solves the optimistic
+# selection problem over the (epsilon-)optimal LL set,
+#
+#     min_y F(x, y)  s.t.  f(x, y) <= f0 + eps,  g(x, y) <= 0 (if y0 is LL-feasible),  y in box,
+#
+# started from y0 (SLSQP, at most 100 iterations), with eps = 1e-6 * max(1, |f0|). This is the
+# optimistic selection over the LL solution set (see Dempe 2002, dempe2002foundations, for the optimistic formulation), applied
+# as a refinement of a numerical LL solution. The refined point is accepted only if it satisfies
+# the constraints and lowers F; otherwise y0 is kept, so the step can never make the reported
+# value worse for the leader. Every F, f and g evaluation made by the step is counted.
+#
+# The refinement is generic: it uses no knowledge of SMD6. On an instance whose LL optimum is
+# unique it can move y only within the eps-level set of f, so it is close to a no-op there.
+COUNTS = {"calls": 0, "accepted": 0, "F_evals": 0, "f_evals": 0}
+
+
+def optimistic_refine(inst, x, y0, rel_eps=1e-6, maxiter=100):
+    COUNTS["calls"] += 1
+    lo, hi = inst.y_bounds[:, 0], inst.y_bounds[:, 1]
+    y0 = np.clip(np.asarray(y0, float), lo, hi)
+    f0 = float(inst.f(x, y0))
+    g0 = inst.g(x, y0)
+    ll_feas = bool(np.all(g0 <= 1e-6)) if g0.size else True
+    eps = rel_eps * max(1.0, abs(f0))
+    F0 = float(inst.F(x, y0))
+
+    def Fo(y):
+        COUNTS["F_evals"] += 1
+        return float(inst.F(x, y))
+
+    def c_level(y):
+        COUNTS["f_evals"] += 1
+        return f0 + eps - float(inst.f(x, y))
+
+    cons = [{"type": "ineq", "fun": c_level}]
+    if g0.size and ll_feas:
+        cons.append({"type": "ineq", "fun": lambda y: -np.asarray(inst.g(x, y), float)})
+    try:
+        r = minimize(Fo, y0, method="SLSQP", bounds=list(zip(lo, hi)), constraints=cons,
+                     options={"maxiter": maxiter, "ftol": 1e-10})
+        y1 = np.clip(r.x, lo, hi)
+    except Exception:
+        return y0
+    ok = float(inst.f(x, y1)) <= f0 + 2 * eps
+    if g0.size and ll_feas:
+        ok = ok and bool(np.all(inst.g(x, y1) <= 1e-6))
+    if ok and float(inst.F(x, y1)) < F0:
+        COUNTS["accepted"] += 1
+        return y1
+    return y0
+
+
+_OPTLL_ORIG = {}
+
+
+def patch():
+    """Single-file version: rebind the module-level LL solves to the tie-break wrappers."""
+    global ll_solve, _ll_solve_warm
+    if _OPTLL_ORIG:
+        return
+    _OPTLL_ORIG["ll_solve"], _OPTLL_ORIG["warm"] = ll_solve, _ll_solve_warm
+    base, base_warm = ll_solve, _ll_solve_warm
+
+    def ll_solve_opt(inst, x, seed=0, **kw):
+        y, _, _, _ = base(inst, x, seed=seed, **kw)
+        y = optimistic_refine(inst, x, y)
+        g = inst.g(x, y)
+        feas = bool(np.all(g <= 1e-6)) if g.size else True
+        return y, inst.F(x, y), inst.G(x, y), feas
+
+    def ll_solve_warm_opt(inst, x, seed, xl0=None, xl_near=None):
+        y, _, _, _, _ = base_warm(inst, x, seed, xl0=xl0, xl_near=xl_near)
+        y = optimistic_refine(inst, x, y)
+        g = inst.g(x, y)
+        feas = bool(np.all(g <= 1e-6)) if g.size else True
+        return y, inst.F(x, y), inst.G(x, y), feas, g
+
+    ll_solve, _ll_solve_warm = ll_solve_opt, ll_solve_warm_opt
+
+
+def unpatch():
+    global ll_solve, _ll_solve_warm
+    if _OPTLL_ORIG:
+        ll_solve, _ll_solve_warm = _OPTLL_ORIG.pop("ll_solve"), _OPTLL_ORIG.pop("warm")
+
+
+# ================================================================================================
+# PHASE 7: SMD6 SENSITIVITY RUN WITH THE TIE-BREAK (run_optimistic_ll.py)
+# ================================================================================================
+
+# run_optimistic_ll.py
+# ====================
+# SMD6 sensitivity run with the optimistic tie-break of Assumption A1 (py).
+#
+# Re-runs all 14 configurations on SMD6 at (3,3), (10,10) and (30,30), 30 runs each, with the
+# locked seed convention (seed = run_id), the same budget (60 nested solves) and the same settings;
+# the only change is that every nested LL solve is followed by the optimistic refinement.
+#
+# Restricted to SMD6 on purpose: it is the only instance in the suite whose UL objective differs
+# across tied LL optima (on SMD11 F is constant over the tie, Appendix A). On instances where the
+# numerical LL solution is not exactly optimal, the refinement would move within a sub-optimal
+# level set of f and could report values better than the true optimum, so it is not a safe
+# default for the whole suite.
+#
+# Writes results/optll/summary_optll.csv and trajectories_optll.jsonl (resumable). Locked files
+# are only read.
+OPTLL_FIELDS = ["method_id", "instance_id", "run_id", "best", "feasible_found", "cpu_time_s",
+          "refine_calls", "refine_accepted", "refine_F_evals", "refine_f_evals"]
+OPTLL_INSTANCES = ["SMD6_p3q3", "SMD6_p10q10", "SMD6_p30q30"]
+
+
+def _optll_init():
+    pass  # (was: import optimistic_ll)
+    patch()
+
+
+def _optll_worker(args):
+    mid, iid, r = args
+    pass  # (was: import optimistic_ll)
+    pass  # (was: from benchmark import SUITE)
+    pass  # (was: import methods, methods_m14)
+    for k in COUNTS:
+        COUNTS[k] = 0
+    t0 = time.time()
+    try:
+        if mid == "M14":
+            traj, cpu = run_m14(SUITE[iid], seed=r)
+        else:
+            traj, cpu = run_method(SUITE[iid], mid, seed=r)
+        err, rows, best, ff = None, traj.rows, traj.best, traj.found_feasible
+    except Exception as e:
+        err, rows, best, ff, cpu = f"{type(e).__name__}: {e}", [], np.nan, False, time.time() - t0
+    c = dict(COUNTS)
+    return dict(method_id=mid, instance_id=iid, run_id=r, best=best, feasible_found=ff, cpu_time_s=cpu,
+                refine_calls=c["calls"], refine_accepted=c["accepted"], refine_F_evals=c["F_evals"],
+                refine_f_evals=c["f_evals"], rows=rows, error=err)
+
+
+def run_optll_main(runs=30, workers=2):
+    import types
+    a = types.SimpleNamespace(runs=runs, workers=workers)
+    OUT = os.path.join(RESULTS_DIR, "optll")
+    SUMMARY = os.path.join(OUT, "summary_optll.csv")
+    TRAJ = os.path.join(OUT, "trajectories_optll.jsonl")
+    os.makedirs(OUT, exist_ok=True)
+    pass  # (was: from methods import METHOD_SPECS)
+    methods_all = list(METHOD_SPECS.keys()) + ["M14"]
+    done = set()
+    if os.path.exists(SUMMARY):
+        with open(SUMMARY) as fh:
+            done = {(r["method_id"], r["instance_id"], int(r["run_id"])) for r in csv.DictReader(fh)}
+    work = [(m, i, r) for i in OPTLL_INSTANCES for m in methods_all for r in range(a.runs) if (m, i, r) not in done]
+    print(f"{len(work)} runs to do ({len(done)} done)", flush=True)
+    new = not os.path.exists(SUMMARY)
+    sf = open(SUMMARY, "a", newline=""); w = csv.DictWriter(sf, fieldnames=OPTLL_FIELDS)
+    if new:
+        w.writeheader()
+    tf = open(TRAJ, "a")
+    t0, n = time.time(), 0
+    with mp.Pool(a.workers, initializer=_optll_init) as pool:
+        for res in pool.imap_unordered(_optll_worker, work, chunksize=1):
+            w.writerow({k: res[k] for k in OPTLL_FIELDS}); sf.flush()
+            tf.write(json.dumps(dict(method_id=res["method_id"], instance_id=res["instance_id"],
+                                     run_id=res["run_id"], rows=res["rows"], error=res["error"]),
+                                default=float) + "\n"); tf.flush()
+            n += 1
+            if res["error"]:
+                print("ERROR", res["method_id"], res["instance_id"], res["run_id"], res["error"], flush=True)
+            if n % 25 == 0 or n == len(work):
+                print(f"{n}/{len(work)} done, {(time.time()-t0)/60:.1f} min", flush=True)
+
+
+# ================================================================================================
+# PHASE 7: SCENARIO SENSITIVITY TO THE TIE-BREAK (analysis_optll.py)
+# ================================================================================================
+
+# analysis_optll.py
+# =================
+# Scenario-level sensitivity of the eight Friedman tests to the SMD6 optimistic tie-break.
+#
+# 1. Recomputes the eight scenario tests from the locked results with the analysis_optll_main ranking rule and
+#    checks that they match results/resub_numbers.json (they must, to 1e-9).
+# 2. Replaces the three SMD6 instances by the optimistic re-run (results/optll/summary_optll.csv)
+#    and recomputes the tests and the Holm-Bonferroni correction over the sixteen omnibus tests
+#    (the eight feasibility tests are unchanged: SMD6 has no constraints).
+# 3. Reports, per configuration, the mean final UL value on SMD6 under both LL solves.
+# Adds the key 'smd6_optll' to results/resub_numbers.json.
+
+
+def optll_friedman(d, methods, instances):
+    m = d[d.method_id.isin(methods)]
+    f = m[m.feasible_found.astype(bool)]
+    mm = f.groupby(["instance_id", "method_id"]).best.mean().unstack().reindex(index=instances, columns=methods)
+    rr = mm.rank(axis=1, na_option="bottom")
+    n, k = rr.shape
+    a2 = (rr ** 2).values.sum(); b2 = (rr.sum() ** 2).sum() / n; c1 = n * k * (k + 1) ** 2 / 4
+    t2 = (n - 1) * (b2 - c1) / (a2 - b2)
+    p = float(1 - stats.f.cdf(t2, k - 1, (n - 1) * (k - 1)))
+    return dict(n=int(n), T2=float(t2), p=p, mean_ranks={c: float(v) for c, v in rr.mean().items()}, means=mm)
+
+
+def optll_holm(ps):
+    lab = list(ps); pv = np.array([ps[k] for k in lab]); o = np.argsort(pv); m = len(pv)
+    adj = np.empty(m); run = 0.0
+    for r, i in enumerate(o):
+        run = max(run, min(1.0, (m - r) * pv[i])); adj[i] = run
+    return {k: float(adj[j]) for j, k in enumerate(lab)}
+
+
+def analysis_optll_main():
+    js = json.load(open(os.path.join(RESULTS_DIR, 'resub_numbers.json')))
+    d = pd.concat([pd.read_csv(os.path.join(RESULTS_DIR, "summary.csv")), pd.read_csv(os.path.join(RESULTS_DIR, "summary_m14.csv"))])
+    inst = sorted(d.instance_id.unique())
+    o = pd.read_csv(os.path.join(RESULTS_DIR, "optll", "summary_optll.csv"))
+    smd6 = ["SMD6_p3q3", "SMD6_p10q10", "SMD6_p30q30"]
+    exp = 14 * 30 * 3
+    assert len(o) == exp, f"optimistic run incomplete: {len(o)}/{exp}"
+    d2 = pd.concat([d[~d.instance_id.isin(smd6)], o[d.columns]])
+    out = {"check": {}, "scenarios": {}}
+    for sk, s in js["scenarios"].items():
+        a = optll_friedman(d, s["methods"], inst)
+        out["check"][sk] = abs(a["T2"] - s["T2"])
+        assert out["check"][sk] < 1e-9, (sk, a["T2"], s["T2"])
+        b = optll_friedman(d2, s["methods"], inst)
+        best_a = min(a["mean_ranks"], key=a["mean_ranks"].get); best_b = min(b["mean_ranks"], key=b["mean_ranks"].get)
+        out["scenarios"][sk] = dict(name=s["name"], methods=s["methods"], p_locked=s["p"], p_optll=b["p"],
+                                    T2_optll=b["T2"], mean_ranks_locked=s["mean_ranks"],
+                                    mean_ranks_optll=b["mean_ranks"], best_locked=best_a, best_optll=best_b,
+                                    reject05_locked=bool(s["p"] < 0.05), reject05_optll=bool(b["p"] < 0.05))
+    # Holm over sixteen: replace the eight scenario ("_full") p-values
+    ps = {h["label"]: h["p_raw"] for h in js["optll_holm"]}
+    for sk, s in out["scenarios"].items():
+        lab = f"S{sk}_full"
+        assert lab in ps, lab
+        ps[lab] = s["p_optll"]
+    hb = optll_holm(ps)
+    out["holm_optll"] = {k: dict(p_raw=ps[k], p_holm=hb[k], reject05=bool(hb[k] < 0.05)) for k in ps}
+    out["holm_locked"] = {h["label"]: dict(p_holm=h["p_holm"], reject05=h["reject05"]) for h in js["optll_holm"]}
+    out["holm_changes"] = [k for k in ps if out["holm_optll"][k]["reject05"] != out["holm_locked"][k]["reject05"]]
+    # per-configuration means on SMD6
+    def means(df):
+        f = df[df.instance_id.isin(smd6) & df.feasible_found.astype(bool)]
+        return f.groupby(["instance_id", "method_id"]).best.mean().unstack()
+    ml, mo = means(d), means(o)
+    out["smd6_means"] = {i: {m: dict(locked=float(ml.loc[i, m]), optll=float(mo.loc[i, m])) for m in ml.columns}
+                         for i in smd6}
+    out["smd6_rank_M1"] = {i: dict(locked=int(ml.loc[i].rank()["M1"]), optll=int(mo.loc[i].rank()["M1"])) for i in smd6}
+    out["refine"] = dict(calls=int(o.refine_calls.sum()), accepted=int(o.refine_accepted.sum()),
+                         F_evals_per_run_median=float(o.refine_F_evals.median()),
+                         f_evals_per_run_median=float(o.refine_f_evals.median()))
+    js["smd6_optll"] = out
+    json.dump(js, open(os.path.join(RESULTS_DIR, 'resub_numbers.json'), "w"), indent=1, default=float)
+    print(json.dumps({k: v for k, v in out.items() if k != "holm_optll"}, indent=1, default=float))
+
+
+# ================================================================================================
+# PHASE 7: SA-APPA FIDELITY ON SMD6 WITH THE TIE-BREAK (phase7_smd6_optll_fidelity.py)
+# ================================================================================================
+
+# phase7_smd6_optll_fidelity.py
+# =============================
+# Held-out fidelity of SA-APPA's GP on SMD6 at (3, 3) when the nested LL solve applies the
+# optimistic tie-break (optimistic_ll.py). Same rule as A5: the lower-median of SA-APPA's 30 runs
+# (here from results/optll/summary_optll.csv) is re-run under its seed with the patch, the
+# trajectory is checked against the stored optimistic run, and the final GP is scored on the A5
+# held-out points against the closed-form optimistic theta. Writes results/phase7/smd6_optll_fidelity.json.
+
+
+
+def smd6_optll_fidelity_main():
+    patch()
+    o = pd.read_csv(os.path.join(RESULTS_DIR, "optll", "summary_optll.csv"))
+    m = o[(o.method_id == "M1") & (o.instance_id == S6_IID)].copy()
+    assert len(m) == 30, len(m)
+    m["key"] = np.where(m.feasible_found.astype(bool), m.best, np.inf)
+    m = m.sort_values(["key", "run_id"])
+    run, best = int(m.iloc[14].run_id), float(m.iloc[14].best)
+    stored = None
+    with open(os.path.join(RESULTS_DIR, "optll", "trajectories_optll.jsonl")) as fh:
+        for line in fh:
+            j = json.loads(line)
+            if j["method_id"] == "M1" and j["instance_id"] == S6_IID and j["run_id"] == run:
+                stored = [r["best_feasible_obj"] for r in j["rows"]]
+    snaps = {}
+
+    def hook(stage, X, F, G, theta_gp, phi_gps):
+        snaps[stage] = dict(X=X, F=np.asarray(F, float), theta_gp=theta_gp)
+    sp = METHOD_SPECS["M1"]
+    traj, _ = run_ablation_method(SUITE[S6_IID], "M1", sp["engine"], sp["constraint_mode"], sp["adaptation"],
+                                  sp["init"], seed=run, hook=hook)
+    new = [r["best_feasible_obj"] for r in traj.rows]
+    dev = max(abs(a - b) / max(1, abs(b)) for a, b in zip(new, stored)) if len(new) == len(stored) else np.inf
+    d = np.load(os.path.join(P7_DIR, "a5_SMD6_p3q3.npz"))
+    Xh = d["Xh"]; th = smd6_theta_opt(Xh)
+    gp = snaps["final"]["theta_gp"]
+    mu, sd = gp.predict(Xh)
+    e = mu - th
+    Xt, Ft = snaps["final"]["X"], snaps["final"]["F"]
+    out = dict(run=run, best=best, reproduces=bool(dev <= 1e-6), max_rel_dev=float(dev), n=int(len(th)),
+               rmse=float(np.sqrt(np.mean(e ** 2))), max_abs=float(np.max(np.abs(e))),
+               coverage_2sd=float(np.mean(np.abs(e) <= 2 * sd)), mean_sd=float(np.mean(sd)),
+               theta_range=float(np.ptp(th)), corr=float(np.corrcoef(mu, th)[0, 1]),
+               lengthscale=float(gp.lengthscale),
+               train_gap_max_abs=float(np.max(np.abs(Ft - smd6_theta_opt(Xt)))))
+    np.savez(os.path.join(P7_DIR, "smd6_optll_fidelity.npz"), Xh=Xh, th=th, mu=mu, sd=sd, Xt=Xt, Ft=Ft)
+    json.dump(out, open(os.path.join(P7_DIR, "smd6_optll_fidelity.json"), "w"), indent=1)
+    print(json.dumps(out, indent=1))
+
+
+# ================================================================================================
 # PHASE 7 FIGURES (figures_phase7.py)
 # ================================================================================================
 
@@ -3825,6 +4148,26 @@ def fig_A6():
     p7_save(fig, "A6b_smd6_consistent_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
 
 
+def fig_A6c():
+    """SMD6 at (3, 3): SA-APPA's own GP when the nested LL solve applies the optimistic tie-break."""
+    fj = json.load(open(os.path.join(P7_DIR, "smd6_optll_fidelity.json")))
+    old = json.load(open(os.path.join(P7_DIR, "smd6_check.json")))["a5_vs_optimistic"]
+    d = np.load(os.path.join(P7_DIR, "smd6_optll_fidelity.npz"))
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["th"], d["mu"], "o", ms=2.6, color=P[0])
+    lo, hi = float(min(d["th"].min(), d["mu"].min())), float(max(d["th"].max(), d["mu"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("GP mean $\\mu_\\theta(\\mathbf{x})$")
+    ax.set_title("SMD6 (3, 3), optimistic LL solve", fontsize=8)
+    cap = (f"SMD6 at (3, 3), {fj['n']} held-out points: GP mean of SA-APPA (M1) against the optimistic theta when "
+           "every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held "
+           f"at the end of run {fj['run']}, the lower-median of the 30 optimistic runs. RMSE {fj['rmse']:.1f} "
+           f"({100 * fj['rmse'] / fj['theta_range']:.0f}% of the range), correlation {fj['corr']:.2f}, against RMSE "
+           f"{old['rmse']:.0f} and correlation {old['corr']:.2f} with the locked LL solve. The +/- 2 sigma coverage is "
+           f"{100 * fj['coverage_2sd']:.1f}%: the tie-break makes the data consistent but does not change the GP's calibration.")
+    p7_save(fig, "A6c_smd6_optimistic_ll", cap, dict(part="A6", instance="SMD6_p3q3", run=fj["run"], seed=fj["run"]))
+
+
 # ============================================================================ PART B
 def load_traj():
     out = {}
@@ -3994,7 +4337,7 @@ def fig_B1():
     return b1
 
 
-def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1")):
+def figures_phase7_main(which=("A1", "A2", "A3", "A4", "A5", "A6", "A6c", "B2", "B1")):
     for w in which:
         globals()[f"fig_{w}"]()
     mp_ = os.path.join(P7_FIG_DIR, "manifest.json")

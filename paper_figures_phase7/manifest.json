@@ -598,6 +598,14 @@
   "seed": 1
  },
  {
+  "file": "A6c_smd6_optimistic_ll",
+  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean of SA-APPA (M1) against the optimistic theta when every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held at the end of run 4, the lower-median of the 30 optimistic runs. RMSE 7.5 (3% of the range), correlation 0.99, against RMSE 204 and correlation 0.18 with the locked LL solve. The +/- 2 sigma coverage is 1.5%: the tie-break makes the data consistent but does not change the GP's calibration.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 4,
+  "seed": 4
+ },
+ {
   "file": "B1_tp_ablA",
   "caption": "Budget composition, TP1-TP9, internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
@@ -635,7 +643,7 @@
  },
  {
   "file": "B1_smd_s_ablA",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 5 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 7 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
   "group": "ablA",
@@ -644,7 +652,7 @@
  },
  {
   "file": "B1_smd_s_ablB",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 6 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 9 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
   "group": "ablB",
@@ -662,9 +670,81 @@
  },
  {
   "file": "B1_smd_s_all",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 10 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 15 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ablA",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 19 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ablB",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 16 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ext",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_all",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 31 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_l_ablA",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_ablB",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_ext",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 3 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_all",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 21 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
   "group": "all",
   "runs": "0-4 (instrumented)",
   "placement": "appendix"

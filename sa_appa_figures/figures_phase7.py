@@ -323,6 +323,26 @@ def fig_A6():
     save(fig, "A6b_smd6_consistent_targets", cap, dict(part="A6", instance="SMD6_p3q3", run=tr["run"], seed=tr["run"]))
 
 
+def fig_A6c():
+    """SMD6 at (3, 3): SA-APPA's own GP when the nested LL solve applies the optimistic tie-break."""
+    fj = json.load(open(os.path.join(P7, "smd6_optll_fidelity.json")))
+    old = json.load(open(os.path.join(P7, "smd6_check.json")))["a5_vs_optimistic"]
+    d = np.load(os.path.join(P7, "smd6_optll_fidelity.npz"))
+    fig, ax = plt.subplots(figsize=(3.4, 3.2))
+    ax.plot(d["th"], d["mu"], "o", ms=2.6, color=P[0])
+    lo, hi = float(min(d["th"].min(), d["mu"].min())), float(max(d["th"].max(), d["mu"].max()))
+    ax.plot([lo, hi], [lo, hi], color=GRAY, linewidth=0.8, linestyle="--")
+    ax.set_xlabel("optimistic $\\theta(\\mathbf{x})$"); ax.set_ylabel("GP mean $\\mu_\\theta(\\mathbf{x})$")
+    ax.set_title("SMD6 (3, 3), optimistic LL solve", fontsize=8)
+    cap = (f"SMD6 at (3, 3), {fj['n']} held-out points: GP mean of SA-APPA (M1) against the optimistic theta when "
+           "every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held "
+           f"at the end of run {fj['run']}, the lower-median of the 30 optimistic runs. RMSE {fj['rmse']:.1f} "
+           f"({100 * fj['rmse'] / fj['theta_range']:.0f}% of the range), correlation {fj['corr']:.2f}, against RMSE "
+           f"{old['rmse']:.0f} and correlation {old['corr']:.2f} with the locked LL solve. The +/- 2 sigma coverage is "
+           f"{100 * fj['coverage_2sd']:.1f}%: the tie-break makes the data consistent but does not change the GP's calibration.")
+    save(fig, "A6c_smd6_optimistic_ll", cap, dict(part="A6", instance="SMD6_p3q3", run=fj["run"], seed=fj["run"]))
+
+
 # ============================================================================ PART B
 def load_traj():
     out = {}
@@ -493,7 +513,7 @@ def fig_B1():
 
 
 if __name__ == "__main__":
-    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "B2", "B1"]
+    which = sys.argv[1:] or ["A1", "A2", "A3", "A4", "A5", "A6", "A6c", "B2", "B1"]
     for w in which:
         globals()[f"fig_{w}"]()
     mp_ = os.path.join(OUT, "manifest.json")
