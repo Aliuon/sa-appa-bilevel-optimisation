@@ -226,7 +226,7 @@ def _pso_step(X, V, Pbest, gbest, rng, w=0.7, c1=1.5, c2=1.5):
 
 def run_ablation_method(inst, method_id, engine, constraint_mode, adaptation, init,
                          seed=0, pf_eta=None, pf_min=0.1, pf_max=0.9,
-                         beta=None, gamma=None, delta=None):
+                         beta=None, gamma=None, delta=None, hook=None):
     """Unifies M1-M9 and, with engine set appropriately, M4-M6: one
     surrogate-assisted optimiser parameterised by:
       engine: 'appa' | 'ga' | 'de' | 'pso'
@@ -264,6 +264,8 @@ def run_ablation_method(inst, method_id, engine, constraint_mode, adaptation, in
     surrogate_cls = RBFSurrogate if method_id == "M11" else GPSurrogate
     m_ul = len(Gtr[0]) if len(Gtr[0]) else 0
     theta_gp, phi_gps = _fit_surrogates(X, Ftr, Gtr, m_ul, surrogate_cls=surrogate_cls)
+    if hook is not None:   # read-only snapshot for figures (Phase 7); None in every locked run
+        hook("init", X.copy(), Ftr.copy(), [g.copy() for g in Gtr], theta_gp, phi_gps)
 
     rng = np.random.default_rng(_stable_seed(seed, method_id, inst.id, "pop") % (2 ** 31 - 1))
     Pop = _lhs(inst.x_bounds, N_UL_POP, _stable_seed(seed, method_id, inst.id, "poplhs") % (2 ** 31 - 1)) \
@@ -374,6 +376,8 @@ def run_ablation_method(inst, method_id, engine, constraint_mode, adaptation, in
         Gtr = Gtr + [G]
         theta_gp, phi_gps = _fit_surrogates(X, Ftr, Gtr, len(G), surrogate_cls=surrogate_cls)
 
+    if hook is not None:
+        hook("final", X.copy(), Ftr.copy(), [g.copy() for g in Gtr], theta_gp, phi_gps)
     cpu_time = time.time() - t0
     return traj, cpu_time
 

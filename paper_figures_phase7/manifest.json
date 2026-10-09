@@ -1,0 +1,752 @@
+[
+ {
+  "file": "A1a_tp3_llvalue_truth",
+  "caption": "TP3 (Appendix A), ground truth: the LL optimal value function $f^*(\\mathbf{x})=f(\\mathbf{x},\\mathbf{y}^*(\\mathbf{x}))$ on a 61 x 61 grid over the UL box [0, 15]^2. The LL problem min ||x - y||^2 over y in [0, 10]^2 is a strictly convex quadratic programme, so y*(x) = min(x, 10) is single-valued, as Assumption A2 requires; it was solved by bounded-variable least squares (SciPy lsq_linear, 'bvls') and checked against the closed-form projection. The kinks at x_i = 10 are where the LL bound becomes active. The open circle marks the bilevel optimum x* = (15, 10), y* = (10, 10), theta = 325, f* = 25; the blue lines on the floor are the UL constraint boundaries x1 + 2 x2 = 30 (solid) and x1 + x2 = 25 (dashed). Ground truth only; no method was charged.",
+  "part": "A1",
+  "instance": "TP3",
+  "run": null,
+  "seed": null
+ },
+ {
+  "file": "A1b_tp3_theta_truth",
+  "caption": "TP3 (Appendix A), ground truth: the UL objective on the follower's response, $\\theta(\\mathbf{x})=F(\\mathbf{x},\\mathbf{y}^*(\\mathbf{x}))$ on a 61 x 61 grid over the UL box [0, 15]^2. The LL problem min ||x - y||^2 over y in [0, 10]^2 is a strictly convex quadratic programme, so y*(x) = min(x, 10) is single-valued, as Assumption A2 requires; it was solved by bounded-variable least squares (SciPy lsq_linear, 'bvls') and checked against the closed-form projection. The kinks at x_i = 10 are where the LL bound becomes active. The open circle marks the bilevel optimum x* = (15, 10), y* = (10, 10), theta = 325, f* = 25; the blue lines on the floor are the UL constraint boundaries x1 + 2 x2 = 30 (solid) and x1 + x2 = 25 (dashed). Ground truth only; no method was charged.",
+  "part": "A1",
+  "instance": "TP3",
+  "run": null,
+  "seed": null
+ },
+ {
+  "file": "A2a_tp3_theta_gp_mean_init",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held after the 25-point initial design, trained on 25 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 8.01 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Grey: true theta(x); blue: GP posterior mean; black: training points; open circle: optimum x* = (15, 10), theta = 325; cross: SA-APPA's best feasible evaluated point at this stage, x = (14.58, 8.40), theta = 340.48. On 2,500 held-out points over the box the mean has RMSE 10.66 and maximum absolute error 69.6 (theta spans 1032); within 1.5 of x* the RMSE is 2.60.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "init"
+ },
+ {
+  "file": "A2b_tp3_theta_gp_band_init",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held after the 25-point initial design, trained on 25 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 8.01 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Uncertainty of the GP: the surfaces mu +/- 2 sigma (multiplier 2) and the true theta. Because the signal variance is fixed at 1 while theta varies by about 1032, sigma is at most 1 and averages 0.0046; the two surfaces are indistinguishable at this scale. The empirical coverage of the +/- 2 sigma interval on 2,500 held-out points is 0.0% over the box and 0.2% within 1.5 of x*, against a nominal 95%: the GP's predictive uncertainty is not calibrated on this problem.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "init"
+ },
+ {
+  "file": "A2c_tp3_theta_gp_error_init",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held after the 25-point initial design, trained on 25 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 8.01 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Absolute error of the GP mean on a 61 x 61 grid, with training points (dots), the optimum (open circle), the UL constraint boundaries (black) and the LL kink lines x_i = 10 (dotted). The error is largest at (14.5, 15.0), away from the training points; inside the feasible region it is smaller but does not vanish near the kink x_2 = 10, on which the optimum lies, because the smooth kernel cannot represent the change of slope there.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "init"
+ },
+ {
+  "file": "A2d_tp3_theta_gp_mean_final",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held at the end of the run (60 nested solves), trained on 60 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 7.81 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Grey: true theta(x); blue: GP posterior mean; black: training points; open circle: optimum x* = (15, 10), theta = 325; cross: SA-APPA's best feasible evaluated point at this stage, x = (15.00, 9.51), theta = 325.24. On 2,500 held-out points over the box the mean has RMSE 11.95 and maximum absolute error 91.6 (theta spans 1032); within 1.5 of x* the RMSE is 2.34.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "final"
+ },
+ {
+  "file": "A2e_tp3_theta_gp_band_final",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held at the end of the run (60 nested solves), trained on 60 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 7.81 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Uncertainty of the GP: the surfaces mu +/- 2 sigma (multiplier 2) and the true theta. Because the signal variance is fixed at 1 while theta varies by about 1032, sigma is at most 1 and averages 0.0027; the two surfaces are indistinguishable at this scale. The empirical coverage of the +/- 2 sigma interval on 2,500 held-out points is 0.2% over the box and 0.0% within 1.5 of x*, against a nominal 95%: the GP's predictive uncertainty is not calibrated on this problem.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "final"
+ },
+ {
+  "file": "A2f_tp3_theta_gp_error_final",
+  "caption": "TP3, SA-APPA (M1), run 5 (seed 5), selected by a rule fixed in advance: the lower median (15th of 30) of the locked final UL objectives. The GP is the one SA-APPA held at the end of the run (60 nested solves), trained on 60 truly evaluated points with its own settings (squared-exponential kernel, lengthscale 7.81 from the median heuristic, signal variance 1, outputs mean-centred and not rescaled); no hyperparameter was tuned for this figure. Absolute error of the GP mean on a 61 x 61 grid, with training points (dots), the optimum (open circle), the UL constraint boundaries (black) and the LL kink lines x_i = 10 (dotted). The error is largest at (14.2, 15.0), away from the training points; inside the feasible region it is smaller but does not vanish near the kink x_2 = 10, on which the optimum lies, because the smooth kernel cannot represent the change of slope there.",
+  "part": "A2",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5,
+  "stage": "final"
+ },
+ {
+  "file": "A3_tp3_phi1",
+  "caption": "TP3, UL constraint phi_1(x) = -(x_1+2x_2-30) (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 5 (seed 5; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.0476, maximum absolute error 0.676, +/- 2 sigma coverage 45% and predicts the sign of phi_1 (feasible or not) correctly at 99.2% of grid points.",
+  "part": "A3",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5
+ },
+ {
+  "file": "A3_tp3_phi2",
+  "caption": "TP3, UL constraint phi_2(x) = x_1+x_2-25 (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 5 (seed 5; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.0308, maximum absolute error 0.414, +/- 2 sigma coverage 59% and predicts the sign of phi_2 (feasible or not) correctly at 99.4% of grid points.",
+  "part": "A3",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5
+ },
+ {
+  "file": "A3_tp4_phi1",
+  "caption": "TP4, UL constraint phi_1(x) = x_1^2+2x_2-4 (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 1 (seed 1; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.185, maximum absolute error 2.59, +/- 2 sigma coverage 11% and predicts the sign of phi_1 (feasible or not) correctly at 99.8% of grid points. No run of the median rank found a feasible point on TP4, so no incumbent is marked.",
+  "part": "A3",
+  "instance": "TP4",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A3_tp5_phi1",
+  "caption": "TP5, UL constraint phi_1(x) = x_1-x_2 (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 0 (seed 0; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.0157, maximum absolute error 0.248, +/- 2 sigma coverage 69% and predicts the sign of phi_1 (feasible or not) correctly at 98.4% of grid points.",
+  "part": "A3",
+  "instance": "TP5",
+  "run": 0,
+  "seed": 0
+ },
+ {
+  "file": "A3_tp5_phi2",
+  "caption": "TP5, UL constraint phi_2(x) = x_1^2+x_2^2-100 (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 0 (seed 0; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.16, maximum absolute error 2.13, +/- 2 sigma coverage 7% and predicts the sign of phi_2 (feasible or not) correctly at 99.6% of grid points.",
+  "part": "A3",
+  "instance": "TP5",
+  "run": 0,
+  "seed": 0
+ },
+ {
+  "file": "A3_tp7_phi1",
+  "caption": "TP7, UL constraint phi_1(x) = x_1^2+x_2^2-1 (depends on x only): true map (grey) and the GP SA-APPA held at the end of run 10 (seed 10; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 0.00151, maximum absolute error 0.0144, +/- 2 sigma coverage 100% and predicts the sign of phi_1 (feasible or not) correctly at 99.7% of grid points.",
+  "part": "A3",
+  "instance": "TP7",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A3_tp8_phi1",
+  "caption": "TP8, UL constraint phi_1(x) = x_1+x_2+y^*_1(\\mathbf{x})-2y^*_2(\\mathbf{x})-40 (depends on y*(x); its true values use the exact LL response (bound-constrained QP)): true map (grey) and the GP SA-APPA held at the end of run 21 (seed 21; lower-median run of 30, rule fixed in advance), trained on 60 truly evaluated points. On the 61 x 61 grid the GP mean has RMSE 1.97, maximum absolute error 13.2, +/- 2 sigma coverage 0% and predicts the sign of phi_1 (feasible or not) correctly at 98.4% of grid points.",
+  "part": "A3",
+  "instance": "TP8",
+  "run": 21,
+  "seed": 21
+ },
+ {
+  "file": "A4_tp3_ystar1",
+  "caption": "TP3, true follower response y*_1(x) = min(x_1, 10) over the UL box, from the exact solution of the strictly convex LL quadratic programme (single-valued, as Assumption A2 requires). SA-APPA does not model y*(x); no approximation is drawn. A diagnostic GP of y* was not produced, because the nested solves of the selected run do not store y and adding it would require new evaluations.",
+  "part": "A4",
+  "instance": "TP3",
+  "run": null,
+  "seed": null
+ },
+ {
+  "file": "A4_tp3_ystar2",
+  "caption": "TP3, true follower response y*_2(x) = min(x_2, 10) over the UL box, from the exact solution of the strictly convex LL quadratic programme (single-valued, as Assumption A2 requires). SA-APPA does not model y*(x); no approximation is drawn. A diagnostic GP of y* was not produced, because the nested solves of the selected run do not store y and adding it would require new evaluations.",
+  "part": "A4",
+  "instance": "TP3",
+  "run": null,
+  "seed": null
+ },
+ {
+  "file": "B2_t1_tp_ablA",
+  "caption": "Evaluations to target, TP1-TP9, internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "tp",
+  "group": "ablA",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_tp_ablB",
+  "caption": "Evaluations to target, TP1-TP9, internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "tp",
+  "group": "ablB",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_tp_ext",
+  "caption": "Evaluations to target, TP1-TP9, Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "tp",
+  "group": "ext",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_tp_all",
+  "caption": "Evaluations to target, TP1-TP9, all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "tp",
+  "group": "all",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_s_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ablA",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_s_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ablB",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_s_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ext",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_s_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "all",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_m_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ablA",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_m_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ablB",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_m_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ext",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_m_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "all",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t1_smd_l_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ablA",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_l_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ablB",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_l_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ext",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B2_t1_smd_l_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "all",
+  "target": 0.01,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_s_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ablA",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_s_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ablB",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_s_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "ext",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_s_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_s",
+  "group": "all",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_m_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ablA",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_m_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ablB",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_m_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "ext",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_m_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
+  "part": "B2",
+  "instance_set": "smd_m",
+  "group": "all",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_l_ablA",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ablA",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_l_ablB",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ablB",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_l_ext",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "ext",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B2_t2_smd_l_all",
+  "caption": "Evaluations to target, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 1 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B2",
+  "instance_set": "smd_l",
+  "group": "all",
+  "target": 1.0,
+  "runs": "0-29 (all, locked)",
+  "placement": "appendix"
+ },
+ {
+  "file": "A5_tp1",
+  "caption": "TP1: GP posterior mean of theta against the true theta on 340 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 60 points without an LL-feasible response were dropped. RMSE 0.0466, coverage 52% (nominal 95%). The mean predictive standard deviation is 0.0043, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP1",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_tp2",
+  "caption": "TP2: GP posterior mean of theta against the true theta on 90 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 17 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 310 points without an LL-feasible response were dropped. RMSE 58.7, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0029, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP2",
+  "run": 17,
+  "seed": 17
+ },
+ {
+  "file": "A5_tp3",
+  "caption": "TP3: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 5 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 10.8, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0027, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5
+ },
+ {
+  "file": "A5_tp4",
+  "caption": "TP4: GP posterior mean of theta against the true theta on 396 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 4 points without an LL-feasible response were dropped. RMSE 0.447, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0026, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP4",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A5_tp5",
+  "caption": "TP5: GP posterior mean of theta against the true theta on 369 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 0 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 31 points without an LL-feasible response were dropped. RMSE 0.293, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0019, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP5",
+  "run": 0,
+  "seed": 0
+ },
+ {
+  "file": "A5_tp6",
+  "caption": "TP6: GP posterior mean of theta against the true theta on 210 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 190 points without an LL-feasible response were dropped. RMSE 0.000658, coverage 78% (nominal 95%). The mean predictive standard deviation is 0.00039, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP6",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_tp7",
+  "caption": "TP7: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 0.841, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0063, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP7",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A5_tp8",
+  "caption": "TP8: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 21 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 2.12, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0021, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP8",
+  "run": 21,
+  "seed": 21
+ },
+ {
+  "file": "A5_smd1_p3q3",
+  "caption": "SMD1_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 17, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.098, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD1_p3q3",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_smd2_p3q3",
+  "caption": "SMD2_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 12 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 8.21, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.082, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD2_p3q3",
+  "run": 12,
+  "seed": 12
+ },
+ {
+  "file": "A5_smd3_p3q3",
+  "caption": "SMD3_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 9 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 22.9, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD3_p3q3",
+  "run": 9,
+  "seed": 9
+ },
+ {
+  "file": "A5_smd4_p3q3",
+  "caption": "SMD4_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 11.5, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.074, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD4_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd5_p3q3",
+  "caption": "SMD5_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 12.7, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.093, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD5_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd6_p3q3",
+  "caption": "SMD6_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 194, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.065, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A5_smd7_p3q3",
+  "caption": "SMD7_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 3.03, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD7_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd8_p3q3",
+  "caption": "SMD8_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 3 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.55, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.08, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD8_p3q3",
+  "run": 3,
+  "seed": 3
+ },
+ {
+  "file": "A5_smd9_p3q3",
+  "caption": "SMD9_p3q3: GP posterior mean of theta against the true theta on 199 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 1 points without an LL-feasible response were dropped. RMSE 6.77, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.049, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD9_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd10_p3q3",
+  "caption": "SMD10_p3q3: GP posterior mean of theta against the true theta on 142 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 58 points without an LL-feasible response were dropped. RMSE 20.6, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.071, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD10_p3q3",
+  "run": 6,
+  "seed": 6
+ },
+ {
+  "file": "A5_smd11_p3q3",
+  "caption": "SMD11_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.81, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD11_p3q3",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A5_smd12_p3q3",
+  "caption": "SMD12_p3q3: GP posterior mean of theta against the true theta on 108 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 92 points without an LL-feasible response were dropped. RMSE 59.3, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD12_p3q3",
+  "run": 6,
+  "seed": 6
+ },
+ {
+  "file": "A6a_smd6_training_targets",
+  "caption": "SMD6 at (3, 3): the 60 UL values that SA-APPA trained its GP on (run 1, the lower-median run) against the optimistic theta at the same points. The LL of SMD6 is optimal on a whole line of tail variables (t1 = t2), and the UL objective adds the squared tail, so the nested differential-evolution solve returns theta_opt + 2 t^2 with t effectively arbitrary. The gap is non-negative everywhere, with median 32.7 and maximum 180.7; the dashed line is equality.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A6b_smd6_consistent_targets",
+  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean against the optimistic theta. Grey squares: the GP SA-APPA held at the end of run 1 (RMSE 204, correlation 0.18). Blue circles: a diagnostic GP with the same kernel, hyperparameter rule and 60 training inputs, but trained on the optimistic theta at those inputs (RMSE 10.0, correlation 0.98). The diagnostic GP is not an SA-APPA run; it shows that the poor fit comes from the inconsistent LL responses rather than from the GP model.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A6c_smd6_optimistic_ll",
+  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean of SA-APPA (M1) against the optimistic theta when every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held at the end of run 4, the lower-median of the 30 optimistic runs. RMSE 7.5 (3% of the range), correlation 0.99, against RMSE 204 and correlation 0.18 with the locked LL solve. The +/- 2 sigma coverage is 1.5%: the tie-break makes the data consistent but does not change the GP's calibration.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 4,
+  "seed": 4
+ },
+ {
+  "file": "B1_tp_ablA",
+  "caption": "Budget composition, TP1-TP9, internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "tp",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_tp_ablB",
+  "caption": "Budget composition, TP1-TP9, internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "tp",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_tp_ext",
+  "caption": "Budget composition, TP1-TP9, Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 1 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "tp",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_tp_all",
+  "caption": "Budget composition, TP1-TP9, all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 7 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "tp",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_s_ablA",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 7 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_s",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_s_ablB",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 9 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_s",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_s_ext",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 1 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_s",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_s_all",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 15 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_s",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ablA",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 19 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ablB",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 16 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_ext",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_m_all",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 31 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "part": "B1",
+  "instance_set": "smd_m",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ },
+ {
+  "file": "B1_smd_l_ablA",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ablA",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_ablB",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ablB",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_ext",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 3 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "ext",
+  "runs": "0-4 (instrumented)",
+  "placement": "main or appendix"
+ },
+ {
+  "file": "B1_smd_l_all",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 21 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "part": "B1",
+  "instance_set": "smd_l",
+  "group": "all",
+  "runs": "0-4 (instrumented)",
+  "placement": "appendix"
+ }
+]

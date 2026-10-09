@@ -1,4 +1,4 @@
-"""
+r"""
 build_appendix_b.py
 ====================
 Generates the Appendix B LaTeX (one longtable per scenario, Best/Mean/Std/CPU
@@ -25,10 +25,16 @@ def method_label(m):
     # Table 1 short names, kept consistent with the manuscript's own naming
     names = {
         "M1": "SA-APPA", "M2": "M2 (unif.\\ init)", "M3": "M3 (bare PPA)",
-        "M4": "M4 (GA engine)", "M5": "M5 (PSO engine)", "M6": "M6 (DE engine)",
+        # M5/M6 corrected 2026-10-02 to match METHOD_SPECS (M5 = DE, M6 = PSO);
+        # the earlier dict had the two engine names swapped (display only;
+        # every number was always keyed by method ID and is unchanged).
+        "M4": "M4 (GA engine)", "M5": "M5 (DE engine)", "M6": "M6 (PSO engine)",
         "M7": "M7 (dyn.\\ penalty)", "M8": "M8 (uncon.\\ EI)", "M9": "M9 (fixed sched.)",
-        "M10": "M10 (SADE-EI)", "M11": "M11 (SPSO-RBF)",
-        "M12": "M12 (Nested-NSGA-II)", "M13": "M13 (CoEA)",
+        # Honest labels (2026-10-02): M10-M13 are in-house baselines, not
+        # re-implementations of the published methods they were once named after.
+        "M10": "M10 (SA-DE-PEN)", "M11": "M11 (SA-PSO-RBF)",
+        "M12": "M12 (NEST-GA, seeds A)", "M13": "M13 (NEST-GA, seeds B)",
+        "M14": "M14 (BL-SAEA re-impl.)",
     }
     return names.get(m, m)
 
@@ -50,7 +56,7 @@ def build_scenario_tex(scenario_num):
     lines.append(f"\\subsection{{Scenario {scenario_num} ({s['phase']}): {s['name']}}}")
     lines.append(f"\\label{{app:scenario{scenario_num}}}")
     lines.append(f"Methods compared: {', '.join(method_label(m) for m in methods)}. "
-                 f"Isolates: {s['isolates']}. Each cell reports Best/Mean/Std (feasible runs "
+                 f"Isolates: {esc(s['isolates'])}. Each cell reports Best/Mean/Std (feasible runs "
                  f"only, out of 30 seeds) and mean CPU time per run; a dash indicates zero "
                  f"feasible runs on that instance.")
     lines.append("")

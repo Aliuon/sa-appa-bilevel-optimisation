@@ -48,10 +48,14 @@ METHODS = [
     Method("M7",  "SA-APPA-Penalty", "Adaptive PPA",           "Dynamic penalty",        "EI (penalized)",     "LHS",     True),
     Method("M8",  "SA-APPA-EI",      "Adaptive PPA",           "None (checked post hoc)", "EI",                "LHS",     True),
     Method("M9",  "SA-APPA-Fixed",   "Adaptive PPA",           "GP-based CEI",           "CEI, fixed sched.",  "LHS",     True),
-    Method("M10", "SADE-EI",         "Differential Evolution", "Dynamic penalty",        "EI (penalized)",     "--",      True,  citation="[37] Islam, Singh & Ray (2017)"),
-    Method("M11", "SPSO-RBF",        "PSO",                    "Dynamic penalty",        "EI (penalized)",     "--",      True,  citation="[38] Mejía-de Dios & Mezura-Montes (2020)"),
-    Method("M12", "Nested-NSGA-II",  "NSGA-II-style",          "Feasibility rules",      "--",                 "--",      False, citation="[39] Sinha, Malo & Deb (2013)"),
-    Method("M13", "CoEA",            "Co-evolutionary",        "Dynamic penalty",        "--",                 "--",      False, citation="[40] Angelo, Krempser & Barbosa (2015)"),
+    # M10-M13 are in-house baselines (see sa_appa_experiments/methods.py METHOD_SPECS);
+    # they are NOT re-implementations of published methods. M12 and M13 run the same
+    # nested GA with different seed streams. M14 re-implements BL-SAEA (methods_m14.py).
+    Method("M10", "SA-DE-Pen",       "Differential Evolution", "Penalised EI (GP)",      "EI (penalised)",     "LHS",     True),
+    Method("M11", "SA-PSO-RBF",      "PSO",                    "Penalised EI (RBF)",     "EI (penalised)",     "LHS",     True),
+    Method("M12", "Nest-GA (A)",     "GA, fully nested",       "Feasibility rules",      "--",                 "LHS",     False),
+    Method("M13", "Nest-GA (B)",     "GA, fully nested",       "Feasibility rules",      "--",                 "LHS",     False),
+    Method("M14", "BL-SAEA",         "GA (SBX+PM)",            "Feasibility penalty",    "ND screening",       "LHS",     True,  citation="Jiang et al., IEEE TCYB 54(7) 2024"),
 ]
 
 METHOD_IDS = [m.id for m in METHODS]
@@ -62,7 +66,7 @@ METHOD_BY_ID = {m.id: m for m in METHODS}
 PHASE_I_METHODS = [m.id for m in METHODS if m.id in
                     {"M1", "M2", "M3", "M4", "M5", "M6", "M7", "M8", "M9"}]
 PHASE_II_METHODS = [m.id for m in METHODS if m.id in
-                     {"M1", "M10", "M11", "M12", "M13"}]
+                     {"M1", "M10", "M11", "M12", "M13", "M14"}]
 
 
 # ---------------------------------------------------------------------------

@@ -1,0 +1,1 @@
+TP8: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 21 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 2.12, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0021, so most bars are narrower than the markers.
