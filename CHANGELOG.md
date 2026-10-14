@@ -70,3 +70,16 @@ the affected instances -> figures.
   unchanged.
 - `paper_figures_phase7/PHASE7_REPORT.md` removed: its numbers predate the selection. The
   Phase 7 JSON files in `sa_appa_experiments/results/phase7/` and the manuscript are the reference.
+
+### Carbon-tax case study (DBOP), added to v2.1.0
+- `sa_appa_experiments/dbop_case.py`: the dynamic bilevel carbon policy problem of Haroon,
+  Ngnotchouye and Tilahun (Engineering Letters 34(7), 2026) as an SA-APPA instance, recalibrated as
+  agreed by the authors (production in GW, emissions in Mt CO2, revenue neutrality and Lemma 1 as 22
+  hard UL constraints, per-technology capacity limits, closed-form follower response). Where
+  D(t) <= 0 the MCE response is the capacity (IMCE.m sets 0 there, which is not the optimum).
+  `patch_exact_ll()` routes the nested LL solve to the closed form for this instance only.
+- `run_dbop.py`: reference optimum (constrained DE, 5 seeds), the 14 configurations x 30 runs x
+  60 nested solves, and the source paper's AGA (100 x 100) x 30 runs.
+- `analysis_dbop.py`: Friedman/Conover over the 30 seed-paired runs, Mann-Whitney SA-APPA vs AGA,
+  `results/dbop/dbop_numbers.json` and `paper_figures_main/fig_dbop.{pdf,png}`.
+- Order: `python run_dbop.py` -> `python analysis_dbop.py` (about 10 minutes on two cores).
