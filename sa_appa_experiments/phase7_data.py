@@ -9,6 +9,8 @@ Ground truth (never charged to any method):
   * TP3 and TP8: the LL problem is a strictly convex QP with simple bounds, solved exactly by
     bounded-variable least squares (scipy.optimize.lsq_linear, method 'bvls') and checked against
     the closed-form projection.
+  * SMD6 (main protocol): the closed-form reply most favourable to the leader (the LL optimal
+    set is a line, Appendix F); under the no-selection protocol, the reference solve below.
   * all other instances: a reference LL solve, SciPy differential evolution with population
     30 x n_ll, up to 300 generations, tol 1e-10, L-BFGS-B polish, best of two seeds. This is far
     more effort than the study's LL solver but is still a heuristic, and is described as such.
@@ -30,6 +32,15 @@ from methods import run_ablation_method, METHOD_SPECS
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "results")
+
+# Main lower-level protocol: strong Stackelberg selection among tied LL optima on every nested
+# solve (strong_stackelberg.py), for the re-runs and for the ground truth. Set
+# SA_APPA_LL_PROTOCOL=none to reproduce the no-selection caches in
+# results/no_tie_selection/phase7.
+SS = os.environ.get("SA_APPA_LL_PROTOCOL", "ss") == "ss"
+if SS:
+    import strong_stackelberg as _ss
+    _ss.patch()
 OUT = os.path.join(RES, "phase7")
 os.makedirs(OUT, exist_ok=True)
 PEN = 1e6
@@ -69,15 +80,28 @@ def ystar_reference(inst, x):
     return best.x
 
 
+def ystar_smd6_optimistic(iid, x):
+    """SMD6: the LL optimal set is a line; the reply most favourable to the leader (Assumption A1)
+    is known in closed form: x_l1 = 0 (including the tied tail) and x_l2 = clip(x_u2)."""
+    p = {"SMD6_p3q3": (3, 3), "SMD6_p10q10": (10, 10), "SMD6_p30q30": (30, 30)}[iid][0]
+    q, s = p, 2
+    xu2 = np.asarray(x, float)[p:]
+    return np.concatenate([np.zeros(q + s), np.clip(xu2, -np.pi / 2 + 1e-6, np.pi / 2 - 1e-6)])
+
+
 def ystar(iid, x):
     if iid in ("TP3", "TP8"):
         return ystar_exact(iid, x)
+    if SS and iid.startswith("SMD6_"):
+        return ystar_smd6_optimistic(iid, x)
     return ystar_reference(SUITE[iid], x)
 
 
 def truth(iid, x):
     inst = SUITE[iid]
     y = ystar(iid, x)
+    if SS:
+        y = _ss.strong_stackelberg_select(inst, x, y)
     g = inst.g(x, y)
     llf = bool(np.all(g <= 1e-6)) if g.size else True
     return dict(y=y, theta=float(inst.F(x, y)), phi=np.atleast_1d(inst.G(x, y)).astype(float),

@@ -1,12 +1,18 @@
 # SA-APPA supplementary codebase
 
-This is the supplementary code and data package accompanying the SA-APPA
-manuscript ("Surrogate-Assisted Adaptive Prey-Predator Algorithm for
-Constrained Bilevel Optimisation Problems"). It reproduces every number,
-table, and figure reported in the paper's Section 5 and Appendices A-E
-from either (a) the raw results already included in this package, or (b)
-a full from-scratch re-run of the 44-instance x 13-method x 30-run
-experimental sweep.
+This is the code and data package accompanying the manuscript "A Surrogate-Assisted
+Prey-Predator Algorithm for Constrained Bilevel Problems: A Controlled Component Study
+under a Matched Budget". It reproduces every number, table and figure reported in the
+paper from either (a) the raw results included in this package, or (b) a full
+from-scratch run of the 44-instance x 14-configuration x 30-run experiment.
+
+Version 2.1.0 applies the strong Stackelberg (optimistic) selection among tied optimal
+lower-level responses after every nested lower-level solve (`sa_appa_experiments/strong_stackelberg.py`).
+The results without the selection are kept in `sa_appa_experiments/results/no_tie_selection/`
+for comparison. See `CHANGELOG.md` for the files added in versions 2.0.0 and 2.1.0 and
+the order in which to run them; `run_pipeline.py` regenerates the statistics and figures,
+and `SA_APPA_4nd.py` (Python) and `sa_appa_matlab/SA_APPA_2nd.m` (MATLAB/Octave) are
+single-file versions of the method and experiment.
 
 ## Layout
 
@@ -131,14 +137,14 @@ Code and Data Availability section.
 | Appendix E (flowchart) | native TikZ in the manuscript source, no code dependency |
 | Figures 1-4 | `sa_appa_figures/figures/fig{1,2,2b,3,4}*.py` |
 | Figures fig:cd1-fig:cd7 | `sa_appa_figures/figures/fig5_cd_diagram_scenarios.py` |
-| Section 5.8 (scale sensitivity) | Scenario 3's per-scale breakdown, computed inline from `results/summary.csv` (see the manuscript's `claude/task8-supplementary-analyses-post-signoff.md` project note for the exact query) |
+| Section 5.8 (scale sensitivity) | Scenario 3's per-scale breakdown, computed from `results/summary.csv` |
+| Scenario 8 and the 16-test Holm correction | `sa_appa_experiments/analysis_paper.py` (writes `results/paper_numbers.json`) |
+| Strong Stackelberg selection (Section 5, Appendix F) | `sa_appa_experiments/strong_stackelberg.py`, `analysis_ss_compare.py` |
+| Surrogate fidelity, budget composition, evaluations to target (Section 5.11, Appendix F) | `sa_appa_experiments/phase7_*.py`, `sa_appa_figures/figures_phase7.py` |
 
-## Known limitations flagged in the manuscript
+## Known simplifications
 
-Several `[NEEDS AUTHOR CHECK]` notes in the manuscript concern this code
-directly (e.g. the data profile's choice of $n_{UL}$ vs. $n_{UL}+n_{LL}$
-as the normalising dimension in `fig2b_data_profile.py`, and the
-CD-diagram ranking rule's tie-break simplification for all-infeasible
-methods in `fig5_cd_diagram_scenarios.py`/`fig5_cd_diagram.py`'s
-docstring). These are documented in the relevant source file's docstring
-as well as in the manuscript; they are open author decisions, not bugs.
+The data profile normalises by $n_{UL}$ (`fig2b_data_profile.py`), and the CD-diagram
+ranking rule uses a simplified tie-break for configurations that are infeasible in every
+run (`fig5_cd_diagram_scenarios.py`). Both choices are documented in the docstrings of
+those files and in the manuscript.

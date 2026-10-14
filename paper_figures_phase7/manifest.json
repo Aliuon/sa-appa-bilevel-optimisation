@@ -142,6 +142,190 @@
   "seed": null
  },
  {
+  "file": "A5_tp1",
+  "caption": "TP1: GP posterior mean of theta against the true theta on 340 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 60 points without an LL-feasible response were dropped. RMSE 0.0466, coverage 52% (nominal 95%). The mean predictive standard deviation is 0.0043, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP1",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_tp3",
+  "caption": "TP3: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 5 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 10.8, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0027, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP3",
+  "run": 5,
+  "seed": 5
+ },
+ {
+  "file": "A5_tp5",
+  "caption": "TP5: GP posterior mean of theta against the true theta on 369 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 0 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 31 points without an LL-feasible response were dropped. RMSE 0.293, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0019, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP5",
+  "run": 0,
+  "seed": 0
+ },
+ {
+  "file": "A5_tp6",
+  "caption": "TP6: GP posterior mean of theta against the true theta on 210 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 190 points without an LL-feasible response were dropped. RMSE 0.000658, coverage 78% (nominal 95%). The mean predictive standard deviation is 0.00039, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP6",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_tp7",
+  "caption": "TP7: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 0.841, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0063, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP7",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A5_tp8",
+  "caption": "TP8: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 21 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 2.12, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0021, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP8",
+  "run": 21,
+  "seed": 21
+ },
+ {
+  "file": "A5_smd1_p3q3",
+  "caption": "SMD1_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 17, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.098, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD1_p3q3",
+  "run": 19,
+  "seed": 19
+ },
+ {
+  "file": "A5_smd2_p3q3",
+  "caption": "SMD2_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 12 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 8.21, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.082, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD2_p3q3",
+  "run": 12,
+  "seed": 12
+ },
+ {
+  "file": "A5_smd3_p3q3",
+  "caption": "SMD3_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 9 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 22.9, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD3_p3q3",
+  "run": 9,
+  "seed": 9
+ },
+ {
+  "file": "A5_smd4_p3q3",
+  "caption": "SMD4_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 11.5, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.074, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD4_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd5_p3q3",
+  "caption": "SMD5_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 12.7, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.093, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD5_p3q3",
+  "run": 14,
+  "seed": 14
+ },
+ {
+  "file": "A5_smd7_p3q3",
+  "caption": "SMD7_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 3.03, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD7_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd8_p3q3",
+  "caption": "SMD8_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 3 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.55, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.08, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD8_p3q3",
+  "run": 3,
+  "seed": 3
+ },
+ {
+  "file": "A5_smd9_p3q3",
+  "caption": "SMD9_p3q3: GP posterior mean of theta against the true theta on 199 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 1 points without an LL-feasible response were dropped. RMSE 6.77, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.049, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD9_p3q3",
+  "run": 29,
+  "seed": 29
+ },
+ {
+  "file": "A5_smd10_p3q3",
+  "caption": "SMD10_p3q3: GP posterior mean of theta against the true theta on 142 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 58 points without an LL-feasible response were dropped. RMSE 20.6, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.071, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD10_p3q3",
+  "run": 6,
+  "seed": 6
+ },
+ {
+  "file": "A5_tp2",
+  "caption": "TP2: GP posterior mean of theta against the true theta on 90 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 17 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 310 points without an LL-feasible response were dropped. RMSE 58.7, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0029, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP2",
+  "run": 17,
+  "seed": 17
+ },
+ {
+  "file": "A5_tp4",
+  "caption": "TP4: GP posterior mean of theta against the true theta on 396 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 4 points without an LL-feasible response were dropped. RMSE 0.447, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0026, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "TP4",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A5_smd11_p3q3",
+  "caption": "SMD11_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 7 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 9.47, coverage 3% (nominal 95%). The mean predictive standard deviation is 0.08, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD11_p3q3",
+  "run": 7,
+  "seed": 7
+ },
+ {
+  "file": "A5_smd12_p3q3",
+  "caption": "SMD12_p3q3: GP posterior mean of theta against the true theta on 108 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 3 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 92 points without an LL-feasible response were dropped. RMSE 121, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.16, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD12_p3q3",
+  "run": 3,
+  "seed": 3
+ },
+ {
+  "file": "A5_smd6_p3q3",
+  "caption": "SMD6_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from closed form, optimistic. RMSE 29.4, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.066, so most bars are narrower than the markers.",
+  "part": "A5",
+  "instance": "SMD6_p3q3",
+  "run": 10,
+  "seed": 10
+ },
+ {
+  "file": "A6a_smd6_training_targets",
+  "caption": "SMD6 at (3, 3): the 60 UL values that SA-APPA trained its GP on (run 1, the lower-median run) against the optimistic theta at the same points. The LL of SMD6 is optimal on a whole line of tail variables (t1 = t2), and the UL objective adds the squared tail, so the nested differential-evolution solve returns theta_opt + 2 t^2 with t effectively arbitrary. The gap is non-negative everywhere, with median 32.7 and maximum 180.7; the dashed line is equality.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A6b_smd6_consistent_targets",
+  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean against the optimistic theta. Grey squares: the GP SA-APPA held at the end of run 1 (RMSE 204, correlation 0.18). Blue circles: a diagnostic GP with the same kernel, hyperparameter rule and 60 training inputs, but trained on the optimistic theta at those inputs (RMSE 10.0, correlation 0.98). The diagnostic GP is not an SA-APPA run; it shows that the poor fit comes from the inconsistent LL responses rather than from the GP model.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 1,
+  "seed": 1
+ },
+ {
+  "file": "A6c_smd6_optimistic_ll",
+  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean of SA-APPA (M1) against the optimistic theta when every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held at the end of run 4, the lower-median of the 30 optimistic runs. RMSE 7.5 (3% of the range), correlation 0.99, against RMSE 204 and correlation 0.18 with the locked LL solve. The +/- 2 sigma coverage is 1.5%: the tie-break makes the data consistent but does not change the GP's calibration.",
+  "part": "A6",
+  "instance": "SMD6_p3q3",
+  "run": 4,
+  "seed": 4
+ },
+ {
   "file": "B2_t1_tp_ablA",
   "caption": "Evaluations to target, TP1-TP9, internal ablation, design and engine (M1-M6). Bar: median over the 30 runs (not 31) of the number of full nested LL solves after which the best feasible UL objective first lies within 0.01 (absolute) of the reference value F_ref; F_ref is the best value found by any configuration in any run, except on SMD1-SMD9 where F_ref = 0, the known UL optimum. Runs that never reach the target are censored; where fewer than 15 of the 30 runs reach it the median is undefined and 'target not reached' is written instead of a bar. The budget is 60 nested solves. Success counts are in the companion table. Counts are in nested solves, the study's cost unit; LL function evaluations per solve are in the budget-composition figure.",
   "part": "B2",
@@ -422,190 +606,6 @@
   "placement": "appendix"
  },
  {
-  "file": "A5_tp1",
-  "caption": "TP1: GP posterior mean of theta against the true theta on 340 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 60 points without an LL-feasible response were dropped. RMSE 0.0466, coverage 52% (nominal 95%). The mean predictive standard deviation is 0.0043, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP1",
-  "run": 19,
-  "seed": 19
- },
- {
-  "file": "A5_tp2",
-  "caption": "TP2: GP posterior mean of theta against the true theta on 90 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 17 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 310 points without an LL-feasible response were dropped. RMSE 58.7, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0029, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP2",
-  "run": 17,
-  "seed": 17
- },
- {
-  "file": "A5_tp3",
-  "caption": "TP3: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 5 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 10.8, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.0027, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP3",
-  "run": 5,
-  "seed": 5
- },
- {
-  "file": "A5_tp4",
-  "caption": "TP4: GP posterior mean of theta against the true theta on 396 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 4 points without an LL-feasible response were dropped. RMSE 0.447, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0026, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP4",
-  "run": 1,
-  "seed": 1
- },
- {
-  "file": "A5_tp5",
-  "caption": "TP5: GP posterior mean of theta against the true theta on 369 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 0 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 31 points without an LL-feasible response were dropped. RMSE 0.293, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0019, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP5",
-  "run": 0,
-  "seed": 0
- },
- {
-  "file": "A5_tp6",
-  "caption": "TP6: GP posterior mean of theta against the true theta on 210 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 190 points without an LL-feasible response were dropped. RMSE 0.000658, coverage 78% (nominal 95%). The mean predictive standard deviation is 0.00039, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP6",
-  "run": 14,
-  "seed": 14
- },
- {
-  "file": "A5_tp7",
-  "caption": "TP7: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 0.841, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0063, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP7",
-  "run": 10,
-  "seed": 10
- },
- {
-  "file": "A5_tp8",
-  "caption": "TP8: GP posterior mean of theta against the true theta on 400 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 21 (lower-median run, rule fixed in advance). True values from exact QP. RMSE 2.12, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.0021, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "TP8",
-  "run": 21,
-  "seed": 21
- },
- {
-  "file": "A5_smd1_p3q3",
-  "caption": "SMD1_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 19 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 17, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.098, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD1_p3q3",
-  "run": 19,
-  "seed": 19
- },
- {
-  "file": "A5_smd2_p3q3",
-  "caption": "SMD2_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 12 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 8.21, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.082, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD2_p3q3",
-  "run": 12,
-  "seed": 12
- },
- {
-  "file": "A5_smd3_p3q3",
-  "caption": "SMD3_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 9 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 22.9, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD3_p3q3",
-  "run": 9,
-  "seed": 9
- },
- {
-  "file": "A5_smd4_p3q3",
-  "caption": "SMD4_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 11.5, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.074, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD4_p3q3",
-  "run": 14,
-  "seed": 14
- },
- {
-  "file": "A5_smd5_p3q3",
-  "caption": "SMD5_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 14 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 12.7, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.093, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD5_p3q3",
-  "run": 14,
-  "seed": 14
- },
- {
-  "file": "A5_smd6_p3q3",
-  "caption": "SMD6_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 1 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 194, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.065, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD6_p3q3",
-  "run": 1,
-  "seed": 1
- },
- {
-  "file": "A5_smd7_p3q3",
-  "caption": "SMD7_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 3.03, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD7_p3q3",
-  "run": 29,
-  "seed": 29
- },
- {
-  "file": "A5_smd8_p3q3",
-  "caption": "SMD8_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 3 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.55, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.08, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD8_p3q3",
-  "run": 3,
-  "seed": 3
- },
- {
-  "file": "A5_smd9_p3q3",
-  "caption": "SMD9_p3q3: GP posterior mean of theta against the true theta on 199 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 29 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 1 points without an LL-feasible response were dropped. RMSE 6.77, coverage 2% (nominal 95%). The mean predictive standard deviation is 0.049, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD9_p3q3",
-  "run": 29,
-  "seed": 29
- },
- {
-  "file": "A5_smd10_p3q3",
-  "caption": "SMD10_p3q3: GP posterior mean of theta against the true theta on 142 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 58 points without an LL-feasible response were dropped. RMSE 20.6, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.071, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD10_p3q3",
-  "run": 6,
-  "seed": 6
- },
- {
-  "file": "A5_smd11_p3q3",
-  "caption": "SMD11_p3q3: GP posterior mean of theta against the true theta on 200 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 10 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds). RMSE 7.81, coverage 1% (nominal 95%). The mean predictive standard deviation is 0.048, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD11_p3q3",
-  "run": 10,
-  "seed": 10
- },
- {
-  "file": "A5_smd12_p3q3",
-  "caption": "SMD12_p3q3: GP posterior mean of theta against the true theta on 108 held-out LHS points, with +/- 2 sigma bars, for the GP SA-APPA held at the end of run 6 (lower-median run, rule fixed in advance). True values from reference DE (pop 30 n_ll, 300 gen, 2 seeds); 92 points without an LL-feasible response were dropped. RMSE 59.3, coverage 0% (nominal 95%). The mean predictive standard deviation is 0.11, so most bars are narrower than the markers.",
-  "part": "A5",
-  "instance": "SMD12_p3q3",
-  "run": 6,
-  "seed": 6
- },
- {
-  "file": "A6a_smd6_training_targets",
-  "caption": "SMD6 at (3, 3): the 60 UL values that SA-APPA trained its GP on (run 1, the lower-median run) against the optimistic theta at the same points. The LL of SMD6 is optimal on a whole line of tail variables (t1 = t2), and the UL objective adds the squared tail, so the nested differential-evolution solve returns theta_opt + 2 t^2 with t effectively arbitrary. The gap is non-negative everywhere, with median 32.7 and maximum 180.7; the dashed line is equality.",
-  "part": "A6",
-  "instance": "SMD6_p3q3",
-  "run": 1,
-  "seed": 1
- },
- {
-  "file": "A6b_smd6_consistent_targets",
-  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean against the optimistic theta. Grey squares: the GP SA-APPA held at the end of run 1 (RMSE 204, correlation 0.18). Blue circles: a diagnostic GP with the same kernel, hyperparameter rule and 60 training inputs, but trained on the optimistic theta at those inputs (RMSE 10.0, correlation 0.98). The diagnostic GP is not an SA-APPA run; it shows that the poor fit comes from the inconsistent LL responses rather than from the GP model.",
-  "part": "A6",
-  "instance": "SMD6_p3q3",
-  "run": 1,
-  "seed": 1
- },
- {
-  "file": "A6c_smd6_optimistic_ll",
-  "caption": "SMD6 at (3, 3), 200 held-out points: GP mean of SA-APPA (M1) against the optimistic theta when every nested LL solve is followed by the optimistic tie-break (sensitivity run). The GP is the one held at the end of run 4, the lower-median of the 30 optimistic runs. RMSE 7.5 (3% of the range), correlation 0.99, against RMSE 204 and correlation 0.18 with the locked LL solve. The +/- 2 sigma coverage is 1.5%: the tie-break makes the data consistent but does not change the GP's calibration.",
-  "part": "A6",
-  "instance": "SMD6_p3q3",
-  "run": 4,
-  "seed": 4
- },
- {
   "file": "B1_tp_ablA",
   "caption": "Budget composition, TP1-TP9, internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
@@ -643,7 +643,7 @@
  },
  {
   "file": "B1_smd_s_ablA",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 7 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 5 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
   "group": "ablA",
@@ -652,7 +652,7 @@
  },
  {
   "file": "B1_smd_s_ablB",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 9 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 6 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
   "group": "ablB",
@@ -670,7 +670,7 @@
  },
  {
   "file": "B1_smd_s_all",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 15 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (3, 3), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 10 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_s",
   "group": "all",
@@ -679,7 +679,7 @@
  },
  {
   "file": "B1_smd_m_ablA",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 19 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 11 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_m",
   "group": "ablA",
@@ -688,7 +688,7 @@
  },
  {
   "file": "B1_smd_m_ablB",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 16 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 9 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_m",
   "group": "ablB",
@@ -697,7 +697,7 @@
  },
  {
   "file": "B1_smd_m_ext",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 4 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 2 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_m",
   "group": "ext",
@@ -706,7 +706,7 @@
  },
  {
   "file": "B1_smd_m_all",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 31 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (10, 10), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 18 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median.",
   "part": "B1",
   "instance_set": "smd_m",
   "group": "all",
@@ -715,7 +715,7 @@
  },
  {
   "file": "B1_smd_l_ablA",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, design and engine (M1-M6). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 6 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
   "part": "B1",
   "instance_set": "smd_l",
   "group": "ablA",
@@ -724,7 +724,7 @@
  },
  {
   "file": "B1_smd_l_ablB",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), internal ablation, constraint handling and step-size rule (M1, M7-M9). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 8 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
   "part": "B1",
   "instance_set": "smd_l",
   "group": "ablB",
@@ -733,7 +733,7 @@
  },
  {
   "file": "B1_smd_l_ext",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 3 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), Phase II comparators (M1, M10-M14). Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 2 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
   "part": "B1",
   "instance_set": "smd_l",
   "group": "ext",
@@ -742,7 +742,7 @@
  },
  {
   "file": "B1_smd_l_all",
-  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 21 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
+  "caption": "Budget composition, SMD1-SMD12 at (p, q) = (30, 30), all fourteen configurations. Each bar is the median over runs 0-4 (5 of the 30 locked runs, re-run under the same seeds with a counter on the LL objective f) of the UL evaluations (solid lower segment; 60 full nested solves for every configuration) plus the LL objective evaluations made inside those solves (hatched upper segment). Every LL solve is a nested heuristic solve: SciPy differential evolution with population N_ll = 6 n_ll, at most T_ll = 20 generations and L-BFGS-B polishing (M14 changes only its initial population); none is exact. The y axis is logarithmic, so segment heights are not proportional to counts; the UL share is under 1% of the total in every case. 12 re-run(s) that did not reproduce the locked trajectory within 1e-6 (relative) were left out of the median. SMD10 at (30, 30) is excluded (no feasible point exists within the box; Appendix C).",
   "part": "B1",
   "instance_set": "smd_l",
   "group": "all",

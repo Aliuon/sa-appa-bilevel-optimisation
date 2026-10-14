@@ -4,12 +4,12 @@ analysis_optll.py
 Scenario-level sensitivity of the eight Friedman tests to the SMD6 optimistic tie-break.
 
 1. Recomputes the eight scenario tests from the locked results with the main ranking rule and
-   checks that they match results/resub_numbers.json (they must, to 1e-9).
+   checks that they match results/paper_numbers.json (they must, to 1e-9).
 2. Replaces the three SMD6 instances by the optimistic re-run (results/optll/summary_optll.csv)
    and recomputes the tests and the Holm-Bonferroni correction over the sixteen omnibus tests
    (the eight feasibility tests are unchanged: SMD6 has no constraints).
 3. Reports, per configuration, the mean final UL value on SMD6 under both LL solves.
-Adds the key 'smd6_optll' to results/resub_numbers.json.
+Adds the key 'smd6_optll' to results/paper_numbers.json.
 """
 import json, os
 import numpy as np
@@ -18,7 +18,7 @@ from scipy import stats
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RES = os.path.join(HERE, "results")
-J = os.path.join(RES, "resub_numbers.json")
+J = os.path.join(RES, "paper_numbers.json")
 
 
 def friedman(d, methods, instances):

@@ -2,7 +2,7 @@
 """
 SA_APPA_4nd.py
 ==============
-Single-file Python version of the SA-APPA experiment codebase (resubmission state, October 2026):
+Single-file Python version of the SA-APPA experiment codebase (version 2.1.0, October 2026):
 "A Surrogate-Assisted Prey-Predator Algorithm for Constrained Bilevel Problems: A Controlled
 Component Study under a Matched Budget" (Haroon, Ngnotchouye and Tilahun).
 
@@ -34,7 +34,7 @@ WHAT IS IN THIS FILE
                      runs 0-4) and evaluations to target
     self-validation  re-runs a few locked runs and compares them with the stored results, and
                      recomputes every test statistic from the stored CSV files and compares it
-                     with results/resub_numbers.json
+                     with results/paper_numbers.json
 
 RESULTS AND OUTPUT
   Results are read from and written to RESULTS_DIR. By default this is

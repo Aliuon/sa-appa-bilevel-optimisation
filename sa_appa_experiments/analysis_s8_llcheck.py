@@ -3,7 +3,7 @@
 On SMD1-SMD9 the UL optimum is F* = 0 and any UL value below it can only arise when the
 returned LL response is not the global LL optimum (e.g. a Rastrigin local minimum in SMD4).
 This script counts such runs per method and repeats the Scenario 8 Friedman test with the
-affected instances removed. It adds the key 's8_llcheck' to results/resub_numbers.json.
+affected instances removed. It adds the key 's8_llcheck' to results/paper_numbers.json.
 """
 import json
 import numpy as np
@@ -36,7 +36,7 @@ out = {
     "n_kept": int(n), "M14_better": int((m.M14 < m.M1).sum()), "M1_better": int((m.M1 < m.M14).sum()),
     "mean_ranks": {c: float(v) for c, v in r.mean().items()}, "T2": float(T2), "p": p,
 }
-J = "results/resub_numbers.json"
+J = "results/paper_numbers.json"
 js = json.load(open(J)); js["s8_llcheck"] = out
 json.dump(js, open(J, "w"), indent=1)
 print(json.dumps(out, indent=1))

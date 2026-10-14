@@ -102,11 +102,10 @@ def _tp_instances():
 def _smd_instances():
     """
     12 SMD problems x 3 scales (p,q) in {(3,3),(10,10),(30,30)}, r=2 fixed,
-    minus SMD10 @ (30,30) -- excluded per Task 2 (constraint count scales as
+    minus SMD10 @ (30,30), excluded because its constraint count scales as
     p+q+r, reaching 62 simultaneous cubic constraints at the largest scale,
     which the fixed evaluation budget could plausibly fail to satisfy even
-    once; see claude/task2-appendix-a-vs-assumptions.md, item 5, for the
-    [NEEDS AUTHOR CHECK] status of this reconstruction).
+    once (Appendix C of the manuscript).
     """
     scales = [(3, 3), (10, 10), (30, 30)]
     r = 2

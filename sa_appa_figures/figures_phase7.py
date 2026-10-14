@@ -33,7 +33,7 @@ sys.path.insert(0, EXP)
 from benchmark import SUITE  # noqa: E402
 
 # ----------------------------------------------------------------------------- style
-# Colour and line style are the map used by every resubmission figure (figures_resub.STYLE);
+# Colour and line style are the map used by every manuscript figure (figures_paper.STYLE);
 # Phase 7 adds a marker and a bar hatch per configuration so that identity survives greyscale.
 P = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
 GRAY, INK, MUTED = "#52514e", "#0b0b0b", "#8a8984"

@@ -80,9 +80,9 @@ def bootstrap_stored_results():
         src = os.path.join(REPO_RESULTS, f)
         if os.path.exists(src) and not os.path.exists(os.path.join(RESULTS_DIR, f)):
             shutil.copy2(src, os.path.join(RESULTS_DIR, f))
-    ref = os.path.join(REPO_RESULTS, "resub_numbers.json")
+    ref = os.path.join(REPO_RESULTS, "paper_numbers.json")
     if os.path.exists(ref):
-        shutil.copy2(ref, os.path.join(RESULTS_DIR, "resub_numbers_reference.json"))
+        shutil.copy2(ref, os.path.join(RESULTS_DIR, "paper_numbers_reference.json"))
     print("stored results copied from", REPO_RESULTS)
     return True
 
@@ -95,13 +95,13 @@ def run_statistics(quick=False):
         r["table"].to_csv(os.path.join(RESULTS_DIR, "scenario_tables", f"scenario_{s['num']}.csv"), index=False)
         print_scenario_report(r)
     if quick:
-        os.environ["RESUB_ALLOW_PARTIAL"] = "1"
+        os.environ["PAPER_ALLOW_PARTIAL"] = "1"
     try:
-        compute_resub_numbers()
+        compute_paper_numbers()
         if not quick:
             run_llcheck()
     except Exception as e:
-        print(f"[statistics] resub numbers skipped: {type(e).__name__}: {e}")
+        print(f"[statistics] paper numbers skipped: {type(e).__name__}: {e}")
     export_cd_summaries()
     cwd = os.getcwd()
     try:
@@ -124,7 +124,7 @@ def build_appendix_b_main_tex():
 
 
 def run_figures():
-    figures_resub_main()
+    figures_paper_main()
     make_all_cd_diagrams(os.path.join(RESULTS_DIR, "scenario_cd_summaries.json"), FIG_DIR)
 
 
@@ -173,8 +173,8 @@ def self_validate(workers, report_path):
     lines.append(f"    {n_ok} of {len(keys)} reproduce the stored best value and trajectory")
     ok_all &= n_ok == len(keys)
     # 3. statistics against the stored reference
-    ref_p = os.path.join(RESULTS_DIR, "resub_numbers_reference.json")
-    new_p = os.path.join(RESULTS_DIR, "resub_numbers.json")
+    ref_p = os.path.join(RESULTS_DIR, "paper_numbers_reference.json")
+    new_p = os.path.join(RESULTS_DIR, "paper_numbers.json")
     if os.path.exists(ref_p) and os.path.exists(new_p):
         ref, new = json.load(open(ref_p)), json.load(open(new_p))
         dmax = 0.0
@@ -189,7 +189,7 @@ def self_validate(workers, report_path):
                      f"largest difference from the reference {max(dmax, hmax):.2g}: {'ok' if st_ok else 'MISMATCH'}")
         ok_all &= st_ok
     else:
-        lines.append("[4] statistics check skipped (no reference resub_numbers.json, e.g. after a fresh sweep)")
+        lines.append("[4] statistics check skipped (no reference paper_numbers.json, e.g. after a fresh sweep)")
     lines += ["", "OVERALL: " + ("PASS" if ok_all else "SEE DEVIATIONS ABOVE")]
     open(report_path, "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -217,8 +217,8 @@ def main():
 
     if a.validate_only:
         bootstrap_stored_results()
-        if not os.path.exists(os.path.join(RESULTS_DIR, "resub_numbers.json")):
-            compute_resub_numbers()
+        if not os.path.exists(os.path.join(RESULTS_DIR, "paper_numbers.json")):
+            compute_paper_numbers()
         self_validate(N_WORKERS, os.path.join(OUTPUT_DIR, "validation_report.txt"))
         return
     if QUICK_TEST:

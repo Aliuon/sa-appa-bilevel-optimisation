@@ -30,14 +30,14 @@
 %   The code that ran (methods.py METHOD_SPECS, config.py) defines M5 = DE and
 %   M6 = PSO, and this file follows it. The older build_appendix_b.py label
 %   swap ("M5 (PSO engine)", "M6 (DE engine)") was corrected in the
-%   resubmission codebase and manuscript (October 2026).
+%   Python codebase and manuscript (October 2026).
 %
 % SCENARIO NAMES AND M10-M13
-%   Scenario names follow the resubmission (scenarios.py): initial design, GA
+%   Scenario names follow the manuscript (scenarios.py): initial design, GA
 %   hybridisation, search engine, constraint handling, step-size rule, in-house
 %   surrogate-assisted engine baselines, fully nested baseline. M10-M13 are
 %   in-house baselines; M12 and M13 are the same nested GA with different seed
-%   streams. The resubmission's M14 (BL-SAEA re-implementation) and Scenario 8
+%   streams. The manuscript's M14 (BL-SAEA re-implementation) and Scenario 8
 %   exist only in the Python code (methods_m14.py) and are not translated here.
 %
 % REQUIREMENTS
@@ -114,6 +114,12 @@
 %   forward-difference gradients, Armijo backtracking; see llPolish()). This is
 %   an approximation and one of the places where exact numerical agreement
 %   with Python cannot be expected.
+%   After the polish, ssSelect() applies the strong Stackelberg selection of
+%   strong_stackelberg.py (the main lower-level protocol of the paper): among
+%   tied optimal LL replies it returns the one best for the leader, with the
+%   same accuracy gate, validation, materiality and tie tests. Its local
+%   solves need fmincon (Optimization Toolbox) in MATLAB; without it the step
+%   is skipped with a warning, and the run follows the no-selection protocol.
 %
 % NO COPIED PYTHON VALUES
 %   No numeric result in this file is a copied-in Python value. Every printed
@@ -253,6 +259,7 @@
 %   yn                     -- Y/N flag string for the report              2342
 %   --- Phase 7 extra figures (MAKE_EXTRA_FIGS) ---
 %   llEvalCounter          -- LL objective evaluation counter (B1)
+%   ssSelect / ssPick / ssLocalMin / ssLocalLL -- strong Stackelberg selection
 %   phase7Options / phase7Style / phase7Label -- settings, styles, labels
 %   phase7Ystar / phase7Truth -- exact (TP3, TP8) or reference LL response
 %   phase7MedianRun / phase7Rerun -- lower-median run, snapshot re-run and check
@@ -1113,6 +1120,7 @@ function [yStar, Fv, Gv, feasLL] = llSolve(inst, x, seed, popsize, maxiter)
     yDE = lo + U(bi, :) .* span;
     [yStar, ~] = llPolish(inst, x, yDE, lo, hi, fDE);
     yStar = min(max(yStar, lo), hi);
+    yStar = ssSelect(inst, x, yStar);   % strong Stackelberg selection among tied LL optima
 
     gv = evalLLg(inst, x, yStar);
     if isempty(gv)
@@ -1122,6 +1130,138 @@ function [yStar, Fv, Gv, feasLL] = llSolve(inst, x, seed, popsize, maxiter)
     end
     Fv = inst.F(x, yStar);
     Gv = evalG(inst, x, yStar);
+end
+
+%% ===================== STRONG STACKELBERG SELECTION (strong_stackelberg.py) =====================
+% After every nested LL solve, the reply is replaced by the follower's tied optimal reply that is
+% best for the leader (D'Amato et al. 2012), with the accuracy gate, validation, materiality and
+% tie tests of strong_stackelberg.py. Local solves use fmincon (SQP) in MATLAB with the
+% Optimization Toolbox, or sqp in Octave; without either, the step is skipped and the run follows
+% the no-selection protocol (a warning is printed once).
+
+function on = ssEnabled(set)
+    persistent flag
+    if isempty(flag), flag = true; end
+    if nargin > 0, flag = logical(set); end
+    on = flag;
+end
+
+function v = ssF(inst, x, y)
+    llEvalCounter(1);   % LL objective evaluations made by the selection count in B1
+    v = inst.f(x, y);
+end
+
+function v = ssViol(G)
+    if isempty(G), v = 0; else, v = sum(max(G(:), 0) .^ 2); end
+end
+
+function [y, ok] = ssLocalMin(obj, cin, y0, lo, hi, maxit)
+    % min obj(y) s.t. cin(y) <= 0, lo <= y <= hi, from y0. ok = false if no solver is available.
+    persistent warned
+    y0 = y0(:); lo = lo(:); hi = hi(:); ok = true;
+    if exist('OCTAVE_VERSION', 'builtin') ~= 0
+        h = @(v) -cin(v(:)');
+        try
+            y = sqp(y0, @(v) obj(v(:)'), [], h, lo, hi, maxit, 1e-12);
+        catch
+            y = y0;
+        end
+    elseif exist('fmincon', 'file') == 2 && license('test', 'optimization_toolbox')
+        opts = optimoptions('fmincon', 'Algorithm', 'sqp', 'Display', 'off', 'MaxIterations', maxit, ...
+                            'OptimalityTolerance', 1e-12, 'StepTolerance', 1e-14);
+        try
+            y = fmincon(@(v) obj(v(:)'), y0, [], [], [], [], lo, hi, @(v) deal(cin(v(:)'), []), opts);
+        catch
+            y = y0;
+        end
+    else
+        if isempty(warned)
+            warning('SA_APPA_2nd:ss', ['No fmincon/sqp available: strong Stackelberg selection skipped; ', ...
+                    'results follow the original LL protocol.']);
+            warned = true;
+        end
+        y = y0; ok = false; return;
+    end
+    y = min(max(y(:), lo), hi)';
+end
+
+function c = ssNoCon(~)
+    c = -1;
+end
+
+function [y, f] = ssLocalLL(inst, x, y0, lo, hi, useG)
+    if useG
+        cin = @(v) reshape(evalLLg(inst, x, v), 1, []);
+    else
+        cin = @ssNoCon;
+    end
+    [y, ok] = ssLocalMin(@(v) ssF(inst, x, v), cin, y0, lo, hi, 200);
+    if ~ok, y = y0; f = ssF(inst, x, y0); return; end
+    f = ssF(inst, x, y);
+    if useG && any(evalLLg(inst, x, y) > 1e-6)
+        y = y0; f = ssF(inst, x, y0);
+    end
+end
+
+function y = ssSelect(inst, x, y0)
+    REL_EPS = 1e-8; ACC_TOL = 1e-5; DELTA_REL = 1e-4; TIE_RATIO = 0.5; FT = 1e-6;
+    lo = inst.yb(:, 1)'; hi = inst.yb(:, 2)';
+    y0 = min(max(y0(:)', lo), hi); y = y0;
+    if ~ssEnabled(), return; end
+    f0 = ssF(inst, x, y0); g0 = evalLLg(inst, x, y0);
+    useG = ~isempty(g0) && all(g0 <= FT);
+    if ~isempty(g0) && ~useG, return; end
+    F0 = inst.F(x, y0); G0 = evalG(inst, x, y0); v0 = ssViol(G0);
+    [~, fLoc] = ssLocalLL(inst, x, y0, lo, hi, useG);
+    acc = ACC_TOL * max(1, abs(fLoc));
+    if f0 - fLoc > acc, return; end                        % accuracy gate
+    fRef = min(f0, fLoc);
+    [c1, v1, F1] = ssPick(inst, x, y0, lo, hi, useG, fRef, REL_EPS * max(1, abs(fRef)), v0, G0, acc);
+    if isempty(c1), return; end
+    if v0 > FT^2, gainV = v0 - v1; else, gainV = 0; end
+    if v1 <= max(v0, FT^2), gainF = F0 - F1; else, gainF = 0; end
+    feasGain = gainV > FT^2 && (v1 <= FT^2 || gainV > DELTA_REL * max(1, v0));
+    fGain = gainF > DELTA_REL * max(1, abs(F0));
+    if ~(feasGain || fGain), return; end
+    [c2, v2, F2] = ssPick(inst, x, y0, lo, hi, useG, fRef, REL_EPS * 1e-2 * max(1, abs(fRef)), v0, G0, acc);
+    if isempty(c2), return; end
+    if feasGain && (v0 - v2) < TIE_RATIO * gainV, feasGain = false; end   % tie test
+    if fGain && (F0 - F2) < TIE_RATIO * gainF, fGain = false; end
+    if feasGain || fGain, y = c2; end
+end
+
+function [best, bv, bF] = ssPick(inst, x, y0, lo, hi, useG, fRef, eps_, v0, G0, acc)
+    FT = 1e-6;
+    if useG
+        base = @(v) [ssF(inst, x, v) - fRef - eps_, reshape(evalLLg(inst, x, v), 1, [])];
+    else
+        base = @(v) ssF(inst, x, v) - fRef - eps_;
+    end
+    start = y0; Gok = v0 <= FT^2;
+    if ~Gok && ~isempty(G0)
+        ya = ssLocalMin(@(v) ssViol(evalG(inst, x, v)), base, y0, lo, hi, 100);
+        if ssViol(evalG(inst, x, ya)) < v0, start = ya; end
+        Gok = ssViol(evalG(inst, x, start)) <= FT^2;
+    end
+    if Gok && ~isempty(G0)
+        cons = @(v) [base(v), reshape(evalG(inst, x, v), 1, [])];
+    else
+        cons = base;
+    end
+    y1 = ssLocalMin(@(v) inst.F(x, v), cons, start, lo, hi, 100);
+    best = []; bv = inf; bF = inf; cands = {y1, start};
+    for k = 1:2
+        c = cands{k};
+        if isequal(c, y0), continue; end
+        if ssF(inst, x, c) > fRef + 2 * eps_, continue; end
+        if useG && any(evalLLg(inst, x, c) > FT), continue; end
+        [~, fChk] = ssLocalLL(inst, x, c, lo, hi, useG);
+        if fChk < fRef - acc, continue; end
+        v = ssViol(evalG(inst, x, c)); Fc = inst.F(x, c);
+        if isempty(best) || v < bv || (v == bv && Fc < bF)
+            best = c; bv = v; bF = Fc;
+        end
+    end
 end
 
 %% ===================== THE 13 METHODS (methods.py) =====================
@@ -2454,7 +2594,7 @@ function o = phase7Options(quick)
 end
 
 function st = phase7Style(m)
-    % Colour and line style as in the resubmission figures (figures_resub.STYLE),
+    % Colour and line style as in the manuscript figures (figures_paper.STYLE),
     % plus a marker and a hatch kind per configuration for greyscale printing.
     P = {'#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'};
     GRAY = '#52514e';

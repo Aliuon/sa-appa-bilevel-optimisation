@@ -17,7 +17,7 @@ ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 EXP = os.path.join(ROOT, "sa_appa_experiments")
 FIG = os.path.join(ROOT, "sa_appa_figures")
 INTERNAL = r"(benchmark|gp|ll_solver|methods|methods_m14|scenarios|friedman_test|analysis|analysis_extra|" \
-           r"phase7_data|phase7_smd6_check|optimistic_ll|config|figures(\.\w+)?)"
+           r"phase7_data|phase7_smd6_check|optimistic_ll|strong_stackelberg|config|figures(\.\w+)?)"
 
 
 def read(path):
@@ -101,6 +101,50 @@ def sub_words(src, mapping):
         src = re.sub(r"(?<![\w.])" + re.escape(a) + r"(?!\w)", b, src)
     return src
 
+SS_PATCH = '''_SS_ORIG = {}
+
+
+def patch():
+    \"\"\"Single-file version: rebind the module-level LL solves to the strong Stackelberg wrappers.
+    Called once at import, so every run in this file uses the main lower-level protocol.\"\"\"
+    global ll_solve, _ll_solve_warm
+    if _SS_ORIG:
+        return
+    _SS_ORIG["ll_solve"], _SS_ORIG["warm"] = ll_solve, _ll_solve_warm
+    base, base_warm = ll_solve, _ll_solve_warm
+
+    def ll_solve_ss(inst, x, seed=0, **kw):
+        y, F, G, feas = base(inst, x, seed=seed, **kw)
+        y1 = strong_stackelberg_select(inst, x, y)
+        if y1 is y or np.array_equal(y1, y):
+            return y, F, G, feas
+        g = inst.g(x, y1)
+        feas = bool(np.all(g <= FEAS_TOL)) if g.size else True
+        return y1, inst.F(x, y1), inst.G(x, y1), feas
+
+    def ll_solve_warm_ss(inst, x, seed, xl0=None, xl_near=None):
+        out = base_warm(inst, x, seed, xl0=xl0, xl_near=xl_near)
+        y = out[0]
+        y1 = strong_stackelberg_select(inst, x, y)
+        if y1 is y or np.array_equal(y1, y):
+            return out
+        g = inst.g(x, y1)
+        feas = bool(np.all(g <= FEAS_TOL)) if g.size else True
+        return y1, inst.F(x, y1), inst.G(x, y1), feas, g
+
+    ll_solve, _ll_solve_warm = ll_solve_ss, ll_solve_warm_ss
+
+
+def unpatch():
+    \"\"\"Restore the no-selection protocol (an arbitrary member of the LL optimal set).\"\"\"
+    global ll_solve, _ll_solve_warm
+    if _SS_ORIG:
+        ll_solve, _ll_solve_warm = _SS_ORIG.pop("ll_solve"), _SS_ORIG.pop("warm")
+
+
+patch()
+'''
+
 
 def section(title, body):
     bar = "# " + "=" * 96
@@ -119,6 +163,11 @@ def main():
         src = strip_module(read(os.path.join(EXP, name + ".py")))
         out.append(section(title, src))
 
+    src = strip_module(read(os.path.join(EXP, "strong_stackelberg.py")))
+    i = src.index("def patch():")
+    src = src[:i] + SS_PATCH
+    out.append(section("STRONG STACKELBERG SELECTION AMONG TIED LL OPTIMA (strong_stackelberg.py)", src))
+
     src = strip_module(read(os.path.join(EXP, "analysis.py")))
     src = src.replace('RESULTS_CSV = "results/summary.csv"', 'RESULTS_CSV = os.path.join(RESULTS_DIR, "summary.csv")')
     src = src.replace('RESULTS_CSV_M14 = "results/summary_m14.csv"', 'RESULTS_CSV_M14 = os.path.join(RESULTS_DIR, "summary_m14.csv")')
@@ -131,13 +180,13 @@ def main():
     src = sub_words(src, {"main": "analysis_extra_main"})
     out.append(section("FEASIBILITY, CONSTRAINT-DENSITY SUBSET AND HOLM (analysis_extra.py)", src))
 
-    # analysis_resub.main -> compute_resub_numbers(); export -> export_cd_summaries()
-    src = strip_module(read(os.path.join(EXP, "analysis_resub.py")))
-    src = sub_words(src, {"main": "compute_resub_numbers"})
+    # analysis_paper.main -> compute_paper_numbers(); export -> export_cd_summaries()
+    src = strip_module(read(os.path.join(EXP, "analysis_paper.py")))
+    src = sub_words(src, {"main": "compute_paper_numbers"})
     src = src.replace('"results/scenario_tables/scenario_8.csv"', 'os.path.join(RESULTS_DIR, "scenario_tables", "scenario_8.csv")')
-    src = src.replace('open("results/resub_numbers.json", "w")', 'open(os.path.join(RESULTS_DIR, "resub_numbers.json"), "w")')
+    src = src.replace('open("results/paper_numbers.json", "w")', 'open(os.path.join(RESULTS_DIR, "paper_numbers.json"), "w")')
     src = src.replace("    import os\n", "")
-    out.append(section("ALL TEST STATISTICS OF THE PAPER (analysis_resub.py)", src))
+    out.append(section("ALL TEST STATISTICS OF THE PAPER (analysis_paper.py)", src))
 
     src = strip_module(read(os.path.join(EXP, "export_scenario_summaries.py")))
     src = sub_words(src, {"main": "export_cd_summaries", "OUT_PATH": "CD_SUMMARY_PATH", "_to_native": "_cd_to_native"})
@@ -158,7 +207,7 @@ def main():
     fn = "def run_llcheck():\n" + "\n".join(b for b in body if not b.startswith("#")) + "\n"
     fn = fn.replace('pd.read_csv("results/summary.csv")', 'pd.read_csv(os.path.join(RESULTS_DIR, "summary.csv"))')
     fn = fn.replace('pd.read_csv("results/summary_m14.csv")', 'pd.read_csv(os.path.join(RESULTS_DIR, "summary_m14.csv"))')
-    fn = fn.replace('J = "results/resub_numbers.json"', 'J = os.path.join(RESULTS_DIR, "resub_numbers.json")')
+    fn = fn.replace('J = "results/paper_numbers.json"', 'J = os.path.join(RESULTS_DIR, "paper_numbers.json")')
     fn = sub_words(fn, {"TOL": "LLCHECK_TOL"})
     doc = "\n".join(b for b in body if b.startswith("#"))
     out.append(section("VALUES BELOW THE KNOWN OPTIMUM (analysis_s8_llcheck.py)", doc + "\n" + fn))
@@ -175,18 +224,21 @@ def main():
     src = strip_module(read(os.path.join(FIG, "figures", "fig5_cd_diagram_scenarios.py")))
     out.append(section("CRITICAL-DIFFERENCE DIAGRAMS (figures/fig5_cd_diagram_scenarios.py)", src))
 
-    src = strip_module(read(os.path.join(FIG, "figures_resub.py")))
+    src = strip_module(read(os.path.join(FIG, "figures_paper.py")))
     src = re.sub(r'^HERE = [^\n]*\nEXP = [^\n]*\n', "", src, flags=re.M)
     src = re.sub(r'^OUT = [^\n]*\n', "", src, flags=re.M)
     src = src.replace('os.path.join(EXP, "results", fn)', "os.path.join(RESULTS_DIR, fn)")
-    src = sub_words(src, {"save": "rs_save", "lighten": "rs_lighten", "LABEL": "RS_LABEL", "main": "figures_resub_main",
+    src = sub_words(src, {"save": "rs_save", "lighten": "rs_lighten", "LABEL": "RS_LABEL", "main": "figures_paper_main",
                           "OUT": "FIG_DIR", "load": "rs_load"})
-    out.append(section("PAPER FIGURES 1-4 (figures_resub.py)", src))
+    out.append(section("PAPER FIGURES 1-4 (figures_paper.py)", src))
 
     # Phase 7
     src = strip_module(read(os.path.join(EXP, "phase7_data.py")))
     src = re.sub(r'^HERE = [^\n]*\nRES = [^\n]*\nOUT = [^\n]*\nos\.makedirs\(OUT, exist_ok=True\)\n', "", src, flags=re.M)
     src = sub_words(src, {"OUT": "P7_DIR", "RES": "RESULTS_DIR", "PEN": "P7_PEN"})
+    src = src.replace("    _ss.patch()\n", "    pass  # already patched at import (patch() runs after the selection section)\n")
+    src = src.replace("_ss.strong_stackelberg_select", "strong_stackelberg_select")
+    assert "_ss." not in src
     out.append(section("PHASE 7 DATA: GROUND TRUTH, RUN SELECTION, GP SNAPSHOTS (phase7_data.py)", src))
 
     src = strip_module(read(os.path.join(EXP, "phase7_run.py")))
@@ -220,44 +272,29 @@ def main():
     src = re.sub(r"\bP\.", "", src)
     src = sub_words(src, {"OUT": "P7_DIR", "IID": "S6_IID", "P_": "S6_P", "Q_": "S6_Q", "R_": "S6_R", "S_": "S6_S",
                           "main": "smd6_check_main", "theta_opt": "smd6_theta_opt", "y_opt": "smd6_y_opt"})
-    out.append(section("PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK (phase7_smd6_check.py)", src))
+    src = src.replace('os.environ["SA_APPA_LL_PROTOCOL"] = "none"\n', "")
+    src = src.replace('RES = os.path.join(RES, "no_tie_selection")\n', "")
+    src = src.replace("def smd6_check_main():\n", "def _smd6_check_main_inner():\n", 1)
+    src += '''
 
-    # optimistic tie-break (SMD6 sensitivity run)
-    src = strip_module(read(os.path.join(EXP, "optimistic_ll.py")))
-    i = src.index("def patch():")
-    src = src[:i] + OPTLL_PATCH
-    out.append(section("PHASE 7: OPTIMISTIC TIE-BREAK FOR THE LL SOLVE (optimistic_ll.py)", src))
 
-    src = strip_module(read(os.path.join(EXP, "run_optimistic_ll.py")))
-    src = re.sub(r'^HERE = [^\n]*\nOUT = [^\n]*\nSUMMARY = [^\n]*\nTRAJ = [^\n]*\n', "", src, flags=re.M)
-    src = re.sub(r"\b(optimistic_ll|methods_m14|methods)\.", "", src)
-    src = sub_words(src, {"FIELDS": "OPTLL_FIELDS", "INSTANCES": "OPTLL_INSTANCES", "_init": "_optll_init",
-                          "_worker": "_optll_worker", "main": "run_optll_main"})
-    src = src.replace("def run_optll_main():\n    ap = argparse.ArgumentParser()\n"
-                      "    ap.add_argument(\"--runs\", type=int, default=30)\n"
-                      "    ap.add_argument(\"--workers\", type=int, default=2)\n    a = ap.parse_args()",
-                      "def run_optll_main(runs=30, workers=2):\n    import types\n"
-                      "    a = types.SimpleNamespace(runs=runs, workers=workers)\n"
-                      "    OUT = os.path.join(RESULTS_DIR, \"optll\")\n"
-                      "    SUMMARY = os.path.join(OUT, \"summary_optll.csv\")\n"
-                      "    TRAJ = os.path.join(OUT, \"trajectories_optll.jsonl\")")
-    assert "def run_optll_main(runs=30" in src
-    out.append(section("PHASE 7: SMD6 SENSITIVITY RUN WITH THE TIE-BREAK (run_optimistic_ll.py)", src))
-
-    src = strip_module(read(os.path.join(EXP, "analysis_optll.py")))
-    src = re.sub(r'^HERE = [^\n]*\nRES = [^\n]*\nJ = [^\n]*\n', "", src, flags=re.M)
-    src = sub_words(src, {"RES": "RESULTS_DIR", "J": "os.path.join(RESULTS_DIR, 'resub_numbers.json')",
-                          "friedman": "optll_friedman", "holm": "optll_holm", "main": "analysis_optll_main"})
-    out.append(section("PHASE 7: SCENARIO SENSITIVITY TO THE TIE-BREAK (analysis_optll.py)", src))
-
-    src = strip_module(read(os.path.join(EXP, "phase7_smd6_optll_fidelity.py")))
-    src = src.replace("optimistic_ll.patch()\n", "")
-    src = re.sub(r'^HERE = [^\n]*\nP7 = [^\n]*\nIID = [^\n]*\n', "", src, flags=re.M)
-    src = src.replace('os.path.join(HERE, "results", "optll"', 'os.path.join(RESULTS_DIR, "optll"')
-    src = sub_words(src, {"P7": "P7_DIR", "IID": "S6_IID", "main": "smd6_optll_fidelity_main",
-                          "theta_opt": "smd6_theta_opt"})
-    src = src.replace("def smd6_optll_fidelity_main():\n", "def smd6_optll_fidelity_main():\n    patch()\n")
-    out.append(section("PHASE 7: SA-APPA FIDELITY ON SMD6 WITH THE TIE-BREAK (phase7_smd6_optll_fidelity.py)", src))
+def smd6_check_main():
+    """Runs the check under the no-selection protocol, against results/no_tie_selection if present."""
+    global RESULTS_DIR
+    orig = os.path.join(RESULTS_DIR, "no_tie_selection")
+    if not os.path.exists(os.path.join(orig, "summary.csv")):
+        print("[smd6 check] no-selection results not found; skipped (the stored smd6_check.json is used)")
+        return
+    keep = RESULTS_DIR
+    unpatch()
+    try:
+        RESULTS_DIR = orig
+        _smd6_check_main_inner()
+    finally:
+        RESULTS_DIR = keep
+        patch()
+'''
+    out.append(section("PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK, NO-SELECTION PROTOCOL (phase7_smd6_check.py)", src))
 
     src = strip_module(read(os.path.join(FIG, "figures_phase7.py")))
     src = re.sub(r'^HERE = [^\n]*\nEXP = [^\n]*\nRES = [^\n]*\nP7 = [^\n]*\nOUT = [^\n]*\n', "", src, flags=re.M)

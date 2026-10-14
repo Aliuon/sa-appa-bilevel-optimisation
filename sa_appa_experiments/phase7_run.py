@@ -142,7 +142,9 @@ def part_A5():
         met = P.gp_metrics(gp, Xh[keep], th[keep])
         met.update(run=run, locked_best=best, n_dropped_ll_infeasible=int((~keep).sum()),
                    lengthscale=float(gp.lengthscale),
-                   truth="exact QP" if iid in ("TP3", "TP8") else "reference DE (pop 30 n_ll, 300 gen, 2 seeds)")
+                   truth="exact QP" if iid in ("TP3", "TP8") else
+                   ("closed form, optimistic" if (P.SS and iid.startswith("SMD6_")) else
+                    "reference DE (pop 30 n_ll, 300 gen, 2 seeds)" + (" + strong Stackelberg selection" if P.SS else "")))
         out[iid] = met
         cur = json.load(open(path)) if os.path.exists(path) else {}
         cur["A5"] = out

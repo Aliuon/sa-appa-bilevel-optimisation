@@ -2,7 +2,7 @@
 """
 SA_APPA_4nd.py
 ==============
-Single-file Python version of the SA-APPA experiment codebase (resubmission state, October 2026):
+Single-file Python version of the SA-APPA experiment codebase (version 2.1.0, October 2026):
 "A Surrogate-Assisted Prey-Predator Algorithm for Constrained Bilevel Problems: A Controlled
 Component Study under a Matched Budget" (Haroon, Ngnotchouye and Tilahun).
 
@@ -34,7 +34,7 @@ WHAT IS IN THIS FILE
                      runs 0-4) and evaluations to target
     self-validation  re-runs a few locked runs and compares them with the stored results, and
                      recomputes every test statistic from the stored CSV files and compares it
-                     with results/resub_numbers.json
+                     with results/paper_numbers.json
 
 RESULTS AND OUTPUT
   Results are read from and written to RESULTS_DIR. By default this is
@@ -1826,6 +1826,245 @@ def _validate_against_worked_example(verbose=True):
 
 
 # ================================================================================================
+# STRONG STACKELBERG SELECTION AMONG TIED LL OPTIMA (strong_stackelberg.py)
+# ================================================================================================
+
+# strong_stackelberg.py
+# =====================
+# Strong Stackelberg (optimistic) selection among tied lower-level optima, applied to every
+# nested LL solve on every test problem.
+#
+# Reference: D'Amato, Daniele, Mallozzi and Petrone (2012), Equilibrium strategies via GA to
+# Stackelberg games under multiple follower's best reply, International Journal of Intelligent
+# Systems 27(2), 74-85 (doi 10.1002/int.21514): when the follower has several best replies, the
+# leader is assumed to receive the one that is best for the leader.
+#
+# Why a new version (optimistic_ll.py was the SMD6-only sensitivity step). That step searched the
+# level set {f <= f0 + eps} around the DE answer y0. When y0 is not an accurate LL solution, that
+# set contains points that are worse for the follower than its true optimum, and the search moved
+# the leader's value by exploiting the solver error (SMD10 (3,3): F 2.01 -> 0.29 in one test).
+# This version only breaks ties; it never corrects or exploits LL solver error:
+#
+# 1. Accuracy gate. A local constrained solve of the LL problem from y0 (SLSQP) gives f_loc. If
+#    f0 - f_loc > ACC_TOL * max(1, |f_loc|), y0 is not an accurate LL solution and no selection is
+#    made (y0 is returned unchanged, exactly as in the locked protocol).
+# 2. Selection. Over the eps-optimal set S_eps = {y in box : g(x,y) <= 0, f(x,y) <= f_ref + eps},
+#    with f_ref = min(f0, f_loc) and eps = REL_EPS * max(1, |f_ref|), the leader's preferred reply is
+#    found lexicographically: first minimise the UL constraint violation sum(max(G,0)^2), then
+#    minimise F subject to G <= 0 (or, if no G-feasible tie exists, at the least-violating point).
+# 3. Validation. The candidate y1 must satisfy g <= 1e-6 (when y0 does), f(y1) <= f_ref + 2 eps, and
+#    a local LL solve started at y1 must not lower f by more than ACC_TOL * max(1, |f_ref|), i.e.
+#    y1 is itself an (approximately) optimal reply and no better LL basin was uncovered.
+# 4. Materiality. y1 must make the reply UL-feasible (or cut the violation by DELTA_REL relative),
+#    or keep the violation and lower F by more than DELTA_REL * max(1, |F0|).
+# 5. Tie test. The selection is repeated with eps/100. Along a genuine tie, f is constant and the
+#    leader's gain is unchanged; inside the small ball of eps-optimal points around a unique LL
+#    optimum the gain shrinks roughly tenfold. y1 is accepted only if at least TIE_RATIO of the
+#    gain survives, and the eps/100 reply is the one returned. On problems with a unique LL
+#    optimum the step therefore returns y0 unchanged.
+#
+# Every F, f, g and G evaluation made by the step is counted in COUNTS.
+REL_EPS = 1e-8       # width of the eps-optimal LL set, relative to max(1, |f_ref|)
+ACC_TOL = 1e-5       # accuracy gate for y0 and validation tolerance for y1
+DELTA_REL = 1e-4     # materiality threshold on F, relative to max(1, |F0|)
+TIE_RATIO = 0.5      # gain at eps/100 must be at least this share of the gain at eps
+FEAS_TOL = 1e-6
+
+COUNTS = {"calls": 0, "gated": 0, "accepted": 0, "accepted_feas": 0, "ball_rejected": 0,
+          "F_evals": 0, "f_evals": 0, "g_evals": 0, "G_evals": 0}
+
+
+def reset_counts():
+    for k in COUNTS:
+        COUNTS[k] = 0
+
+
+def _viol(v):
+    v = np.asarray(v, float)
+    return float(np.sum(np.maximum(v, 0.0) ** 2)) if v.size else 0.0
+
+
+def _local_ll(inst, x, y_start, lo, hi, use_g):
+    """Local constrained LL solve from y_start; returns (y, f) of the best LL-feasible point seen."""
+    def fo(y):
+        COUNTS["f_evals"] += 1
+        return float(inst.f(x, y))
+    cons = []
+    if use_g:
+        def gc(y):
+            COUNTS["g_evals"] += 1
+            return -np.asarray(inst.g(x, y), float)
+        cons.append({"type": "ineq", "fun": gc})
+    try:
+        r = minimize(fo, y_start, method="SLSQP", bounds=list(zip(lo, hi)), constraints=cons,
+                     options={"maxiter": 200, "ftol": 1e-14})
+        y = np.clip(r.x, lo, hi)
+    except Exception:
+        return y_start, float(inst.f(x, y_start))
+    fy = float(inst.f(x, y))
+    if use_g and np.any(np.asarray(inst.g(x, y)) > FEAS_TOL):
+        return y_start, float(inst.f(x, y_start))
+    return y, fy
+
+
+def strong_stackelberg_select(inst, x, y0):
+    COUNTS["calls"] += 1
+    lo, hi = inst.y_bounds[:, 0], inst.y_bounds[:, 1]
+    y0 = np.clip(np.asarray(y0, float), lo, hi)
+    f0 = float(inst.f(x, y0))
+    g0 = np.asarray(inst.g(x, y0), float)
+    use_g = bool(g0.size) and bool(np.all(g0 <= FEAS_TOL))
+    if g0.size and not use_g:
+        return y0                              # LL-infeasible answer: nothing to select among
+    F0 = float(inst.F(x, y0))
+    G0 = np.asarray(inst.G(x, y0), float)
+    v0 = _viol(G0)
+
+    # 1. accuracy gate
+    _, f_loc = _local_ll(inst, x, y0, lo, hi, use_g)
+    acc = ACC_TOL * max(1.0, abs(f_loc))
+    if f0 - f_loc > acc:
+        COUNTS["gated"] += 1
+        return y0
+    f_ref = min(f0, f_loc)
+    eps = REL_EPS * max(1.0, abs(f_ref))
+
+    def Fo(y):
+        COUNTS["F_evals"] += 1
+        return float(inst.F(x, y))
+
+    def Vo(y):
+        COUNTS["G_evals"] += 1
+        return _viol(inst.G(x, y))
+
+    bnds = list(zip(lo, hi))
+    opts = {"maxiter": 100, "ftol": 1e-12}
+
+    def select(eps):
+        """Leader's preferred reply in S_eps, lexicographic (UL violation, then F); validated."""
+        def level(y):
+            COUNTS["f_evals"] += 1
+            return f_ref + eps - float(inst.f(x, y))
+        base = [{"type": "ineq", "fun": level}]
+        if use_g:
+            def gc(y):
+                COUNTS["g_evals"] += 1
+                return -np.asarray(inst.g(x, y), float)
+            base.append({"type": "ineq", "fun": gc})
+        start = y0
+        G_ok = v0 <= FEAS_TOL ** 2
+        if not G_ok and G0.size:
+            try:
+                r = minimize(Vo, y0, method="SLSQP", bounds=bnds, constraints=base, options=opts)
+                ya = np.clip(r.x, lo, hi)
+                if Vo(ya) < v0:
+                    start = ya
+                G_ok = Vo(start) <= FEAS_TOL ** 2
+            except Exception:
+                pass
+        cons = list(base)
+        if G_ok and G0.size:
+            def Gc(y):
+                COUNTS["G_evals"] += 1
+                return -np.asarray(inst.G(x, y), float)
+            cons.append({"type": "ineq", "fun": Gc})
+        try:
+            r = minimize(Fo, start, method="SLSQP", bounds=bnds, constraints=cons, options=opts)
+            y1 = np.clip(r.x, lo, hi)
+        except Exception:
+            y1 = start
+        best = None
+        for cand in (y1, start):
+            if cand is y0:
+                continue
+            if float(inst.f(x, cand)) > f_ref + 2 * eps:
+                continue
+            if use_g and np.any(np.asarray(inst.g(x, cand)) > FEAS_TOL):
+                continue
+            _, f_chk = _local_ll(inst, x, cand, lo, hi, use_g)
+            if f_chk < f_ref - acc:            # a better LL basin exists: y0 was not optimal
+                continue
+            key = (_viol(inst.G(x, cand)), float(inst.F(x, cand)))
+            if best is None or key < best[1]:
+                best = (cand, key)
+        return best
+
+    # 2-3. selection at the working tolerance
+    sel = select(REL_EPS * max(1.0, abs(f_ref)))
+    if sel is None:
+        return y0
+    cand, (v1, F1) = sel
+    gain_v = v0 - v1 if v0 > FEAS_TOL ** 2 else 0.0
+    gain_F = F0 - F1 if v1 <= max(v0, FEAS_TOL ** 2) else 0.0
+    feas_gain = gain_v > FEAS_TOL ** 2 and (v1 <= FEAS_TOL ** 2 or gain_v > DELTA_REL * max(1.0, v0))
+    F_gain = gain_F > DELTA_REL * max(1.0, abs(F0))
+    if not (feas_gain or F_gain):
+        return y0
+    # 4. tie test: the leader's gain must not depend on the width of the optimality tolerance.
+    # Along a genuine tie (f constant) the gain is the same at eps/100; inside the small
+    # eps-ball around a unique optimum it shrinks roughly tenfold.
+    sel2 = select(REL_EPS * 1e-2 * max(1.0, abs(f_ref)))
+    if sel2 is None:
+        return y0
+    _, (v2, F2) = sel2
+    if feas_gain and (v0 - v2) < TIE_RATIO * gain_v:
+        feas_gain = False
+    if F_gain and (F0 - F2) < TIE_RATIO * gain_F:
+        F_gain = False
+    if not (feas_gain or F_gain):
+        COUNTS["ball_rejected"] += 1
+        return y0
+    COUNTS["accepted"] += 1
+    if feas_gain:
+        COUNTS["accepted_feas"] += 1
+    return sel2[0]
+
+
+_SS_ORIG = {}
+
+
+def patch():
+    """Single-file version: rebind the module-level LL solves to the strong Stackelberg wrappers.
+    Called once at import, so every run in this file uses the main lower-level protocol."""
+    global ll_solve, _ll_solve_warm
+    if _SS_ORIG:
+        return
+    _SS_ORIG["ll_solve"], _SS_ORIG["warm"] = ll_solve, _ll_solve_warm
+    base, base_warm = ll_solve, _ll_solve_warm
+
+    def ll_solve_ss(inst, x, seed=0, **kw):
+        y, F, G, feas = base(inst, x, seed=seed, **kw)
+        y1 = strong_stackelberg_select(inst, x, y)
+        if y1 is y or np.array_equal(y1, y):
+            return y, F, G, feas
+        g = inst.g(x, y1)
+        feas = bool(np.all(g <= FEAS_TOL)) if g.size else True
+        return y1, inst.F(x, y1), inst.G(x, y1), feas
+
+    def ll_solve_warm_ss(inst, x, seed, xl0=None, xl_near=None):
+        out = base_warm(inst, x, seed, xl0=xl0, xl_near=xl_near)
+        y = out[0]
+        y1 = strong_stackelberg_select(inst, x, y)
+        if y1 is y or np.array_equal(y1, y):
+            return out
+        g = inst.g(x, y1)
+        feas = bool(np.all(g <= FEAS_TOL)) if g.size else True
+        return y1, inst.F(x, y1), inst.G(x, y1), feas, g
+
+    ll_solve, _ll_solve_warm = ll_solve_ss, ll_solve_warm_ss
+
+
+def unpatch():
+    """Restore the no-selection protocol (an arbitrary member of the LL optimal set)."""
+    global ll_solve, _ll_solve_warm
+    if _SS_ORIG:
+        ll_solve, _ll_solve_warm = _SS_ORIG.pop("ll_solve"), _SS_ORIG.pop("warm")
+
+
+patch()
+
+
+# ================================================================================================
 # SCENARIO STATISTICS (analysis.py)
 # ================================================================================================
 
@@ -2131,12 +2370,12 @@ def analysis_extra_main():
 
 
 # ================================================================================================
-# ALL TEST STATISTICS OF THE PAPER (analysis_resub.py)
+# ALL TEST STATISTICS OF THE PAPER (analysis_paper.py)
 # ================================================================================================
 
-# analysis_resub.py
+# analysis_paper.py
 # =================
-# Single entry point that regenerates every number the resubmitted manuscript
+# Single entry point that regenerates every number the manuscript
 # reports from the scenario tests, so that each figure in the text can be
 # traced to code:
 #
@@ -2149,18 +2388,18 @@ def analysis_extra_main():
 #   * per-scale mean ranks for Scenarios 3, 5, 6 and 8;
 #   * results/scenario_tables/scenario_8.csv (Appendix B raw table).
 #
-# Writes results/resub_numbers.json. Never writes summary.csv.
+# Writes results/paper_numbers.json. Never writes summary.csv.
 def scale_of(iid):
     if iid.startswith("TP"):
         return "TP"
     return iid.split("_")[1]
 
 
-def compute_resub_numbers():
+def compute_paper_numbers():
     df = load_results(include_m14=True)
     assert set(df.method_id.unique()) >= {f"M{i}" for i in range(1, 15)}, "M14 results missing"
     n_m14 = (df.method_id == "M14").sum()
-    if os.environ.get("RESUB_ALLOW_PARTIAL") != "1":
+    if os.environ.get("PAPER_ALLOW_PARTIAL") != "1":
         assert n_m14 == 44 * 30, f"M14 has {n_m14} rows, expected 1320"
 
     out = {"scenarios": {}, "feas": {}, "subset": {}, "holm": [], "per_scale": {},
@@ -2236,7 +2475,7 @@ def compute_resub_numbers():
     out["total_runs"] = int(len(df))
     out["total_feasible"] = int(df.feasible_found.sum())
 
-    with open(os.path.join(RESULTS_DIR, "resub_numbers.json"), "w") as fh:
+    with open(os.path.join(RESULTS_DIR, "paper_numbers.json"), "w") as fh:
         json.dump(out, fh, indent=1, default=float)
     # console summary
     for n, s in out["scenarios"].items():
@@ -2314,7 +2553,7 @@ def export_cd_summaries():
 # On SMD1-SMD9 the UL optimum is F* = 0 and any UL value below it can only arise when the
 # returned LL response is not the global LL optimum (e.g. a Rastrigin local minimum in SMD4).
 # This script counts such runs per method and repeats the Scenario 8 Friedman test with the
-# affected instances removed. It adds the key 's8_llcheck' to results/resub_numbers.json.
+# affected instances removed. It adds the key 's8_llcheck' to results/paper_numbers.json.
 def run_llcheck():
     LLCHECK_TOL = 1e-2
     d = pd.concat([pd.read_csv(os.path.join(RESULTS_DIR, "summary.csv")), pd.read_csv(os.path.join(RESULTS_DIR, "summary_m14.csv"))])
@@ -2342,7 +2581,7 @@ def run_llcheck():
         "n_kept": int(n), "M14_better": int((m.M14 < m.M1).sum()), "M1_better": int((m.M1 < m.M14).sum()),
         "mean_ranks": {c: float(v) for c, v in r.mean().items()}, "T2": float(T2), "p": p,
     }
-    J = os.path.join(RESULTS_DIR, "resub_numbers.json")
+    J = os.path.join(RESULTS_DIR, "paper_numbers.json")
     js = json.load(open(J)); js["s8_llcheck"] = out
     json.dump(js, open(J, "w"), indent=1)
     print(json.dumps(out, indent=1))
@@ -2717,12 +2956,12 @@ def make_all_cd_diagrams(json_path, out_dir, is_synthetic=False):
 
 
 # ================================================================================================
-# PAPER FIGURES 1-4 (figures_resub.py)
+# PAPER FIGURES 1-4 (figures_paper.py)
 # ================================================================================================
 
-# figures_resub.py
+# figures_paper.py
 # ================
-# Figures for the resubmitted manuscript, built from the real trajectories of
+# Figures for the manuscript, built from the real trajectories of
 # all fourteen configurations (results/trajectories.jsonl for M1-M13, locked;
 # results/trajectories_m14.jsonl for M14).
 #
@@ -2737,7 +2976,7 @@ def make_all_cd_diagrams(json_path, out_dir, is_synthetic=False):
 # the iteration counter), because M12-M14 count iterations differently from
 # M1-M11.
 #
-# Outputs (PDF + EPS, opaque fills only) to ../paper_figures_resub/.
+# Outputs (PDF + EPS, opaque fills only) to ../paper_figures_main/.
 
 ABL = [f"M{i}" for i in range(1, 10)]
 EXT = ["M1", "M10", "M11", "M12", "M13", "M14"]
@@ -2958,7 +3197,7 @@ def fig4(df, methods, stem, floor=1e-10):
     rs_save(fig, stem)
 
 
-def figures_resub_main():
+def figures_paper_main():
     df = rs_load()
     last = final_values(df)
     fig1(last, ABL, "fig1_ablation")
@@ -2999,6 +3238,8 @@ def figures_resub_main():
 #   * TP3 and TP8: the LL problem is a strictly convex QP with simple bounds, solved exactly by
 #     bounded-variable least squares (scipy.optimize.lsq_linear, method 'bvls') and checked against
 #     the closed-form projection.
+#   * SMD6 (main protocol): the closed-form reply most favourable to the leader (the LL optimal
+#     set is a line, Appendix F); under the no-selection protocol, the reference solve below.
 #   * all other instances: a reference LL solve, SciPy differential evolution with population
 #     30 x n_ll, up to 300 generations, tol 1e-10, L-BFGS-B polish, best of two seeds. This is far
 #     more effort than the study's LL solver but is still a heuristic, and is described as such.
@@ -3008,6 +3249,19 @@ def figures_resub_main():
 # and take the 15th (the lower median).
 #
 # Outputs: results/phase7/*.npz and results/phase7/fidelity.json
+HERE = os.path.dirname(os.path.abspath(__file__))
+RESULTS_DIR = os.path.join(HERE, "results")
+
+# Main lower-level protocol: strong Stackelberg selection among tied LL optima on every nested
+# solve (strong_stackelberg.py), for the re-runs and for the ground truth. Set
+# SA_APPA_LL_PROTOCOL=none to reproduce the no-selection caches in
+# results/no_tie_selection/phase7.
+SS = os.environ.get("SA_APPA_LL_PROTOCOL", "ss") == "ss"
+if SS:
+    pass  # (was: import strong_stackelberg as _ss)
+    pass  # already patched at import (patch() runs after the selection section)
+P7_DIR = os.path.join(RESULTS_DIR, "phase7")
+os.makedirs(P7_DIR, exist_ok=True)
 P7_PEN = 1e6
 TWO_SIGMA = 2.0
 HELDOUT_SEED = 20261007
@@ -3045,15 +3299,28 @@ def ystar_reference(inst, x):
     return best.x
 
 
+def ystar_smd6_optimistic(iid, x):
+    """SMD6: the LL optimal set is a line; the reply most favourable to the leader (Assumption A1)
+    is known in closed form: x_l1 = 0 (including the tied tail) and x_l2 = clip(x_u2)."""
+    p = {"SMD6_p3q3": (3, 3), "SMD6_p10q10": (10, 10), "SMD6_p30q30": (30, 30)}[iid][0]
+    q, s = p, 2
+    xu2 = np.asarray(x, float)[p:]
+    return np.concatenate([np.zeros(q + s), np.clip(xu2, -np.pi / 2 + 1e-6, np.pi / 2 - 1e-6)])
+
+
 def ystar(iid, x):
     if iid in ("TP3", "TP8"):
         return ystar_exact(iid, x)
+    if SS and iid.startswith("SMD6_"):
+        return ystar_smd6_optimistic(iid, x)
     return ystar_reference(SUITE[iid], x)
 
 
 def truth(iid, x):
     inst = SUITE[iid]
     y = ystar(iid, x)
+    if SS:
+        y = strong_stackelberg_select(inst, x, y)
     g = inst.g(x, y)
     llf = bool(np.all(g <= 1e-6)) if g.size else True
     return dict(y=y, theta=float(inst.F(x, y)), phi=np.atleast_1d(inst.G(x, y)).astype(float),
@@ -3262,7 +3529,9 @@ def part_A5():
         met = gp_metrics(gp, Xh[keep], th[keep])
         met.update(run=run, locked_best=best, n_dropped_ll_infeasible=int((~keep).sum()),
                    lengthscale=float(gp.lengthscale),
-                   truth="exact QP" if iid in ("TP3", "TP8") else "reference DE (pop 30 n_ll, 300 gen, 2 seeds)")
+                   truth="exact QP" if iid in ("TP3", "TP8") else
+                   ("closed form, optimistic" if (SS and iid.startswith("SMD6_")) else
+                    "reference DE (pop 30 n_ll, 300 gen, 2 seeds)" + (" + strong Stackelberg selection" if SS else "")))
         out[iid] = met
         cur = json.load(open(path)) if os.path.exists(path) else {}
         cur["A5"] = out
@@ -3414,12 +3683,12 @@ def instrument_ll_main(runs=5, workers=2):
 
 
 # ================================================================================================
-# PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK (phase7_smd6_check.py)
+# PHASE 7: SMD6 NON-UNIQUE LL RESPONSE CHECK, NO-SELECTION PROTOCOL (phase7_smd6_check.py)
 # ================================================================================================
 
 # phase7_smd6_check.py
 # ====================
-# Tests why the A5 surrogate fit on SMD6 at (3, 3) is poor.
+# Tests why the A5 surrogate fit on SMD6 at (3, 3) was poor under the original lower-level protocol.
 #
 # SMD6 has a continuum of LL optima: the LL objective contains sum((t[i+1] - t[i])^2) over the
 # s = 2 'tail' variables t = x_l1[q:q+s], so every t1 = t2 in [-5, 10] is LL-optimal, while the UL
@@ -3439,6 +3708,9 @@ def instrument_ll_main(runs=5, workers=2):
 #      points. This is not an SA-APPA run; it isolates how much of the error comes from the
 #      inconsistent LL responses rather than from the GP model.
 # Writes results/phase7/smd6_check.json.
+# This check describes the ORIGINAL lower-level protocol (no strong Stackelberg selection), so it
+# re-runs SA-APPA without the selection and against the archived no-selection results.
+
 S6_IID, S6_P, S6_Q, S6_R, S6_S = "SMD6_p3q3", 3, 3, 2, 2
 
 
@@ -3454,7 +3726,7 @@ def smd6_y_opt(x):
     return np.concatenate([np.zeros(S6_Q + S6_S), np.clip(xu2, -np.pi / 2 + 1e-6, np.pi / 2 - 1e-6)])
 
 
-def smd6_check_main():
+def _smd6_check_main_inner():
     inst = SUITE[S6_IID]
     out = {}
     # 1. closed form check: at smd6_y_opt the LL objective is at its minimum (f gradient ~ 0 on the
@@ -3513,327 +3785,22 @@ def smd6_check_main():
     print(json.dumps(out, indent=1))
 
 
-# ================================================================================================
-# PHASE 7: OPTIMISTIC TIE-BREAK FOR THE LL SOLVE (optimistic_ll.py)
-# ================================================================================================
 
-# optimistic_ll.py
-# ================
-# Optimistic tie-break for the nested LL solve (Assumption A1), used only by the SMD6 sensitivity
-# run (run_optimistic_ll.py). The locked results were produced without it and are not changed.
-#
-# Why: when the LL has several optimal responses, the shared DE solve returns an arbitrary one,
-# so the UL value it reports is not theta(x) under the optimistic convention. On SMD6 this adds a
-# non-negative term 2 t^2 with t effectively random, which makes the training data of every
-# surrogate inconsistent (phase7_smd6_check.py).
-#
-# What: after the usual DE solve returns y0 with LL value f0, a local search solves the optimistic
-# selection problem over the (epsilon-)optimal LL set,
-#
-#     min_y F(x, y)  s.t.  f(x, y) <= f0 + eps,  g(x, y) <= 0 (if y0 is LL-feasible),  y in box,
-#
-# started from y0 (SLSQP, at most 100 iterations), with eps = 1e-6 * max(1, |f0|). This is the
-# optimistic selection over the LL solution set (see Dempe 2002, dempe2002foundations, for the optimistic formulation), applied
-# as a refinement of a numerical LL solution. The refined point is accepted only if it satisfies
-# the constraints and lowers F; otherwise y0 is kept, so the step can never make the reported
-# value worse for the leader. Every F, f and g evaluation made by the step is counted.
-#
-# The refinement is generic: it uses no knowledge of SMD6. On an instance whose LL optimum is
-# unique it can move y only within the eps-level set of f, so it is close to a no-op there.
-COUNTS = {"calls": 0, "accepted": 0, "F_evals": 0, "f_evals": 0}
-
-
-def optimistic_refine(inst, x, y0, rel_eps=1e-6, maxiter=100):
-    COUNTS["calls"] += 1
-    lo, hi = inst.y_bounds[:, 0], inst.y_bounds[:, 1]
-    y0 = np.clip(np.asarray(y0, float), lo, hi)
-    f0 = float(inst.f(x, y0))
-    g0 = inst.g(x, y0)
-    ll_feas = bool(np.all(g0 <= 1e-6)) if g0.size else True
-    eps = rel_eps * max(1.0, abs(f0))
-    F0 = float(inst.F(x, y0))
-
-    def Fo(y):
-        COUNTS["F_evals"] += 1
-        return float(inst.F(x, y))
-
-    def c_level(y):
-        COUNTS["f_evals"] += 1
-        return f0 + eps - float(inst.f(x, y))
-
-    cons = [{"type": "ineq", "fun": c_level}]
-    if g0.size and ll_feas:
-        cons.append({"type": "ineq", "fun": lambda y: -np.asarray(inst.g(x, y), float)})
-    try:
-        r = minimize(Fo, y0, method="SLSQP", bounds=list(zip(lo, hi)), constraints=cons,
-                     options={"maxiter": maxiter, "ftol": 1e-10})
-        y1 = np.clip(r.x, lo, hi)
-    except Exception:
-        return y0
-    ok = float(inst.f(x, y1)) <= f0 + 2 * eps
-    if g0.size and ll_feas:
-        ok = ok and bool(np.all(inst.g(x, y1) <= 1e-6))
-    if ok and float(inst.F(x, y1)) < F0:
-        COUNTS["accepted"] += 1
-        return y1
-    return y0
-
-
-_OPTLL_ORIG = {}
-
-
-def patch():
-    """Single-file version: rebind the module-level LL solves to the tie-break wrappers."""
-    global ll_solve, _ll_solve_warm
-    if _OPTLL_ORIG:
+def smd6_check_main():
+    """Runs the check under the no-selection protocol, against results/no_tie_selection if present."""
+    global RESULTS_DIR
+    orig = os.path.join(RESULTS_DIR, "no_tie_selection")
+    if not os.path.exists(os.path.join(orig, "summary.csv")):
+        print("[smd6 check] no-selection results not found; skipped (the stored smd6_check.json is used)")
         return
-    _OPTLL_ORIG["ll_solve"], _OPTLL_ORIG["warm"] = ll_solve, _ll_solve_warm
-    base, base_warm = ll_solve, _ll_solve_warm
-
-    def ll_solve_opt(inst, x, seed=0, **kw):
-        y, _, _, _ = base(inst, x, seed=seed, **kw)
-        y = optimistic_refine(inst, x, y)
-        g = inst.g(x, y)
-        feas = bool(np.all(g <= 1e-6)) if g.size else True
-        return y, inst.F(x, y), inst.G(x, y), feas
-
-    def ll_solve_warm_opt(inst, x, seed, xl0=None, xl_near=None):
-        y, _, _, _, _ = base_warm(inst, x, seed, xl0=xl0, xl_near=xl_near)
-        y = optimistic_refine(inst, x, y)
-        g = inst.g(x, y)
-        feas = bool(np.all(g <= 1e-6)) if g.size else True
-        return y, inst.F(x, y), inst.G(x, y), feas, g
-
-    ll_solve, _ll_solve_warm = ll_solve_opt, ll_solve_warm_opt
-
-
-def unpatch():
-    global ll_solve, _ll_solve_warm
-    if _OPTLL_ORIG:
-        ll_solve, _ll_solve_warm = _OPTLL_ORIG.pop("ll_solve"), _OPTLL_ORIG.pop("warm")
-
-
-# ================================================================================================
-# PHASE 7: SMD6 SENSITIVITY RUN WITH THE TIE-BREAK (run_optimistic_ll.py)
-# ================================================================================================
-
-# run_optimistic_ll.py
-# ====================
-# SMD6 sensitivity run with the optimistic tie-break of Assumption A1 (py).
-#
-# Re-runs all 14 configurations on SMD6 at (3,3), (10,10) and (30,30), 30 runs each, with the
-# locked seed convention (seed = run_id), the same budget (60 nested solves) and the same settings;
-# the only change is that every nested LL solve is followed by the optimistic refinement.
-#
-# Restricted to SMD6 on purpose: it is the only instance in the suite whose UL objective differs
-# across tied LL optima (on SMD11 F is constant over the tie, Appendix A). On instances where the
-# numerical LL solution is not exactly optimal, the refinement would move within a sub-optimal
-# level set of f and could report values better than the true optimum, so it is not a safe
-# default for the whole suite.
-#
-# Writes results/optll/summary_optll.csv and trajectories_optll.jsonl (resumable). Locked files
-# are only read.
-OPTLL_FIELDS = ["method_id", "instance_id", "run_id", "best", "feasible_found", "cpu_time_s",
-          "refine_calls", "refine_accepted", "refine_F_evals", "refine_f_evals"]
-OPTLL_INSTANCES = ["SMD6_p3q3", "SMD6_p10q10", "SMD6_p30q30"]
-
-
-def _optll_init():
-    pass  # (was: import optimistic_ll)
-    patch()
-
-
-def _optll_worker(args):
-    mid, iid, r = args
-    pass  # (was: import optimistic_ll)
-    pass  # (was: from benchmark import SUITE)
-    pass  # (was: import methods, methods_m14)
-    for k in COUNTS:
-        COUNTS[k] = 0
-    t0 = time.time()
+    keep = RESULTS_DIR
+    unpatch()
     try:
-        if mid == "M14":
-            traj, cpu = run_m14(SUITE[iid], seed=r)
-        else:
-            traj, cpu = run_method(SUITE[iid], mid, seed=r)
-        err, rows, best, ff = None, traj.rows, traj.best, traj.found_feasible
-    except Exception as e:
-        err, rows, best, ff, cpu = f"{type(e).__name__}: {e}", [], np.nan, False, time.time() - t0
-    c = dict(COUNTS)
-    return dict(method_id=mid, instance_id=iid, run_id=r, best=best, feasible_found=ff, cpu_time_s=cpu,
-                refine_calls=c["calls"], refine_accepted=c["accepted"], refine_F_evals=c["F_evals"],
-                refine_f_evals=c["f_evals"], rows=rows, error=err)
-
-
-def run_optll_main(runs=30, workers=2):
-    import types
-    a = types.SimpleNamespace(runs=runs, workers=workers)
-    OUT = os.path.join(RESULTS_DIR, "optll")
-    SUMMARY = os.path.join(OUT, "summary_optll.csv")
-    TRAJ = os.path.join(OUT, "trajectories_optll.jsonl")
-    os.makedirs(OUT, exist_ok=True)
-    pass  # (was: from methods import METHOD_SPECS)
-    methods_all = list(METHOD_SPECS.keys()) + ["M14"]
-    done = set()
-    if os.path.exists(SUMMARY):
-        with open(SUMMARY) as fh:
-            done = {(r["method_id"], r["instance_id"], int(r["run_id"])) for r in csv.DictReader(fh)}
-    work = [(m, i, r) for i in OPTLL_INSTANCES for m in methods_all for r in range(a.runs) if (m, i, r) not in done]
-    print(f"{len(work)} runs to do ({len(done)} done)", flush=True)
-    new = not os.path.exists(SUMMARY)
-    sf = open(SUMMARY, "a", newline=""); w = csv.DictWriter(sf, fieldnames=OPTLL_FIELDS)
-    if new:
-        w.writeheader()
-    tf = open(TRAJ, "a")
-    t0, n = time.time(), 0
-    with mp.Pool(a.workers, initializer=_optll_init) as pool:
-        for res in pool.imap_unordered(_optll_worker, work, chunksize=1):
-            w.writerow({k: res[k] for k in OPTLL_FIELDS}); sf.flush()
-            tf.write(json.dumps(dict(method_id=res["method_id"], instance_id=res["instance_id"],
-                                     run_id=res["run_id"], rows=res["rows"], error=res["error"]),
-                                default=float) + "\n"); tf.flush()
-            n += 1
-            if res["error"]:
-                print("ERROR", res["method_id"], res["instance_id"], res["run_id"], res["error"], flush=True)
-            if n % 25 == 0 or n == len(work):
-                print(f"{n}/{len(work)} done, {(time.time()-t0)/60:.1f} min", flush=True)
-
-
-# ================================================================================================
-# PHASE 7: SCENARIO SENSITIVITY TO THE TIE-BREAK (analysis_optll.py)
-# ================================================================================================
-
-# analysis_optll.py
-# =================
-# Scenario-level sensitivity of the eight Friedman tests to the SMD6 optimistic tie-break.
-#
-# 1. Recomputes the eight scenario tests from the locked results with the analysis_optll_main ranking rule and
-#    checks that they match results/resub_numbers.json (they must, to 1e-9).
-# 2. Replaces the three SMD6 instances by the optimistic re-run (results/optll/summary_optll.csv)
-#    and recomputes the tests and the Holm-Bonferroni correction over the sixteen omnibus tests
-#    (the eight feasibility tests are unchanged: SMD6 has no constraints).
-# 3. Reports, per configuration, the mean final UL value on SMD6 under both LL solves.
-# Adds the key 'smd6_optll' to results/resub_numbers.json.
-
-
-def optll_friedman(d, methods, instances):
-    m = d[d.method_id.isin(methods)]
-    f = m[m.feasible_found.astype(bool)]
-    mm = f.groupby(["instance_id", "method_id"]).best.mean().unstack().reindex(index=instances, columns=methods)
-    rr = mm.rank(axis=1, na_option="bottom")
-    n, k = rr.shape
-    a2 = (rr ** 2).values.sum(); b2 = (rr.sum() ** 2).sum() / n; c1 = n * k * (k + 1) ** 2 / 4
-    t2 = (n - 1) * (b2 - c1) / (a2 - b2)
-    p = float(1 - stats.f.cdf(t2, k - 1, (n - 1) * (k - 1)))
-    return dict(n=int(n), T2=float(t2), p=p, mean_ranks={c: float(v) for c, v in rr.mean().items()}, means=mm)
-
-
-def optll_holm(ps):
-    lab = list(ps); pv = np.array([ps[k] for k in lab]); o = np.argsort(pv); m = len(pv)
-    adj = np.empty(m); run = 0.0
-    for r, i in enumerate(o):
-        run = max(run, min(1.0, (m - r) * pv[i])); adj[i] = run
-    return {k: float(adj[j]) for j, k in enumerate(lab)}
-
-
-def analysis_optll_main():
-    js = json.load(open(os.path.join(RESULTS_DIR, 'resub_numbers.json')))
-    d = pd.concat([pd.read_csv(os.path.join(RESULTS_DIR, "summary.csv")), pd.read_csv(os.path.join(RESULTS_DIR, "summary_m14.csv"))])
-    inst = sorted(d.instance_id.unique())
-    o = pd.read_csv(os.path.join(RESULTS_DIR, "optll", "summary_optll.csv"))
-    smd6 = ["SMD6_p3q3", "SMD6_p10q10", "SMD6_p30q30"]
-    exp = 14 * 30 * 3
-    assert len(o) == exp, f"optimistic run incomplete: {len(o)}/{exp}"
-    d2 = pd.concat([d[~d.instance_id.isin(smd6)], o[d.columns]])
-    out = {"check": {}, "scenarios": {}}
-    for sk, s in js["scenarios"].items():
-        a = optll_friedman(d, s["methods"], inst)
-        out["check"][sk] = abs(a["T2"] - s["T2"])
-        assert out["check"][sk] < 1e-9, (sk, a["T2"], s["T2"])
-        b = optll_friedman(d2, s["methods"], inst)
-        best_a = min(a["mean_ranks"], key=a["mean_ranks"].get); best_b = min(b["mean_ranks"], key=b["mean_ranks"].get)
-        out["scenarios"][sk] = dict(name=s["name"], methods=s["methods"], p_locked=s["p"], p_optll=b["p"],
-                                    T2_optll=b["T2"], mean_ranks_locked=s["mean_ranks"],
-                                    mean_ranks_optll=b["mean_ranks"], best_locked=best_a, best_optll=best_b,
-                                    reject05_locked=bool(s["p"] < 0.05), reject05_optll=bool(b["p"] < 0.05))
-    # Holm over sixteen: replace the eight scenario ("_full") p-values
-    ps = {h["label"]: h["p_raw"] for h in js["optll_holm"]}
-    for sk, s in out["scenarios"].items():
-        lab = f"S{sk}_full"
-        assert lab in ps, lab
-        ps[lab] = s["p_optll"]
-    hb = optll_holm(ps)
-    out["holm_optll"] = {k: dict(p_raw=ps[k], p_holm=hb[k], reject05=bool(hb[k] < 0.05)) for k in ps}
-    out["holm_locked"] = {h["label"]: dict(p_holm=h["p_holm"], reject05=h["reject05"]) for h in js["optll_holm"]}
-    out["holm_changes"] = [k for k in ps if out["holm_optll"][k]["reject05"] != out["holm_locked"][k]["reject05"]]
-    # per-configuration means on SMD6
-    def means(df):
-        f = df[df.instance_id.isin(smd6) & df.feasible_found.astype(bool)]
-        return f.groupby(["instance_id", "method_id"]).best.mean().unstack()
-    ml, mo = means(d), means(o)
-    out["smd6_means"] = {i: {m: dict(locked=float(ml.loc[i, m]), optll=float(mo.loc[i, m])) for m in ml.columns}
-                         for i in smd6}
-    out["smd6_rank_M1"] = {i: dict(locked=int(ml.loc[i].rank()["M1"]), optll=int(mo.loc[i].rank()["M1"])) for i in smd6}
-    out["refine"] = dict(calls=int(o.refine_calls.sum()), accepted=int(o.refine_accepted.sum()),
-                         F_evals_per_run_median=float(o.refine_F_evals.median()),
-                         f_evals_per_run_median=float(o.refine_f_evals.median()))
-    js["smd6_optll"] = out
-    json.dump(js, open(os.path.join(RESULTS_DIR, 'resub_numbers.json'), "w"), indent=1, default=float)
-    print(json.dumps({k: v for k, v in out.items() if k != "holm_optll"}, indent=1, default=float))
-
-
-# ================================================================================================
-# PHASE 7: SA-APPA FIDELITY ON SMD6 WITH THE TIE-BREAK (phase7_smd6_optll_fidelity.py)
-# ================================================================================================
-
-# phase7_smd6_optll_fidelity.py
-# =============================
-# Held-out fidelity of SA-APPA's GP on SMD6 at (3, 3) when the nested LL solve applies the
-# optimistic tie-break (optimistic_ll.py). Same rule as A5: the lower-median of SA-APPA's 30 runs
-# (here from results/optll/summary_optll.csv) is re-run under its seed with the patch, the
-# trajectory is checked against the stored optimistic run, and the final GP is scored on the A5
-# held-out points against the closed-form optimistic theta. Writes results/phase7/smd6_optll_fidelity.json.
-
-
-
-def smd6_optll_fidelity_main():
-    patch()
-    o = pd.read_csv(os.path.join(RESULTS_DIR, "optll", "summary_optll.csv"))
-    m = o[(o.method_id == "M1") & (o.instance_id == S6_IID)].copy()
-    assert len(m) == 30, len(m)
-    m["key"] = np.where(m.feasible_found.astype(bool), m.best, np.inf)
-    m = m.sort_values(["key", "run_id"])
-    run, best = int(m.iloc[14].run_id), float(m.iloc[14].best)
-    stored = None
-    with open(os.path.join(RESULTS_DIR, "optll", "trajectories_optll.jsonl")) as fh:
-        for line in fh:
-            j = json.loads(line)
-            if j["method_id"] == "M1" and j["instance_id"] == S6_IID and j["run_id"] == run:
-                stored = [r["best_feasible_obj"] for r in j["rows"]]
-    snaps = {}
-
-    def hook(stage, X, F, G, theta_gp, phi_gps):
-        snaps[stage] = dict(X=X, F=np.asarray(F, float), theta_gp=theta_gp)
-    sp = METHOD_SPECS["M1"]
-    traj, _ = run_ablation_method(SUITE[S6_IID], "M1", sp["engine"], sp["constraint_mode"], sp["adaptation"],
-                                  sp["init"], seed=run, hook=hook)
-    new = [r["best_feasible_obj"] for r in traj.rows]
-    dev = max(abs(a - b) / max(1, abs(b)) for a, b in zip(new, stored)) if len(new) == len(stored) else np.inf
-    d = np.load(os.path.join(P7_DIR, "a5_SMD6_p3q3.npz"))
-    Xh = d["Xh"]; th = smd6_theta_opt(Xh)
-    gp = snaps["final"]["theta_gp"]
-    mu, sd = gp.predict(Xh)
-    e = mu - th
-    Xt, Ft = snaps["final"]["X"], snaps["final"]["F"]
-    out = dict(run=run, best=best, reproduces=bool(dev <= 1e-6), max_rel_dev=float(dev), n=int(len(th)),
-               rmse=float(np.sqrt(np.mean(e ** 2))), max_abs=float(np.max(np.abs(e))),
-               coverage_2sd=float(np.mean(np.abs(e) <= 2 * sd)), mean_sd=float(np.mean(sd)),
-               theta_range=float(np.ptp(th)), corr=float(np.corrcoef(mu, th)[0, 1]),
-               lengthscale=float(gp.lengthscale),
-               train_gap_max_abs=float(np.max(np.abs(Ft - smd6_theta_opt(Xt)))))
-    np.savez(os.path.join(P7_DIR, "smd6_optll_fidelity.npz"), Xh=Xh, th=th, mu=mu, sd=sd, Xt=Xt, Ft=Ft)
-    json.dump(out, open(os.path.join(P7_DIR, "smd6_optll_fidelity.json"), "w"), indent=1)
-    print(json.dumps(out, indent=1))
+        RESULTS_DIR = orig
+        _smd6_check_main_inner()
+    finally:
+        RESULTS_DIR = keep
+        patch()
 
 
 # ================================================================================================
@@ -3858,7 +3825,7 @@ def smd6_optll_fidelity_main():
 # and a .caption.txt are written beside it, and every figure is listed in manifest.json.
 
 # ----------------------------------------------------------------------------- style
-# Colour and line style are the map used by every resubmission figure (figures_resub.STYLE);
+# Colour and line style are the map used by every manuscript figure (figures_paper.STYLE);
 # Phase 7 adds a marker and a bar hatch per configuration so that identity survives greyscale.
 P = ["#2a78d6", "#eb6834", "#1baf7a", "#eda100", "#e87ba4", "#008300", "#4a3aa7", "#e34948"]
 GRAY, INK, MUTED = "#52514e", "#0b0b0b", "#8a8984"
@@ -4427,9 +4394,9 @@ def bootstrap_stored_results():
         src = os.path.join(REPO_RESULTS, f)
         if os.path.exists(src) and not os.path.exists(os.path.join(RESULTS_DIR, f)):
             shutil.copy2(src, os.path.join(RESULTS_DIR, f))
-    ref = os.path.join(REPO_RESULTS, "resub_numbers.json")
+    ref = os.path.join(REPO_RESULTS, "paper_numbers.json")
     if os.path.exists(ref):
-        shutil.copy2(ref, os.path.join(RESULTS_DIR, "resub_numbers_reference.json"))
+        shutil.copy2(ref, os.path.join(RESULTS_DIR, "paper_numbers_reference.json"))
     print("stored results copied from", REPO_RESULTS)
     return True
 
@@ -4442,13 +4409,13 @@ def run_statistics(quick=False):
         r["table"].to_csv(os.path.join(RESULTS_DIR, "scenario_tables", f"scenario_{s['num']}.csv"), index=False)
         print_scenario_report(r)
     if quick:
-        os.environ["RESUB_ALLOW_PARTIAL"] = "1"
+        os.environ["PAPER_ALLOW_PARTIAL"] = "1"
     try:
-        compute_resub_numbers()
+        compute_paper_numbers()
         if not quick:
             run_llcheck()
     except Exception as e:
-        print(f"[statistics] resub numbers skipped: {type(e).__name__}: {e}")
+        print(f"[statistics] paper numbers skipped: {type(e).__name__}: {e}")
     export_cd_summaries()
     cwd = os.getcwd()
     try:
@@ -4471,7 +4438,7 @@ def build_appendix_b_main_tex():
 
 
 def run_figures():
-    figures_resub_main()
+    figures_paper_main()
     make_all_cd_diagrams(os.path.join(RESULTS_DIR, "scenario_cd_summaries.json"), FIG_DIR)
 
 
@@ -4520,8 +4487,8 @@ def self_validate(workers, report_path):
     lines.append(f"    {n_ok} of {len(keys)} reproduce the stored best value and trajectory")
     ok_all &= n_ok == len(keys)
     # 3. statistics against the stored reference
-    ref_p = os.path.join(RESULTS_DIR, "resub_numbers_reference.json")
-    new_p = os.path.join(RESULTS_DIR, "resub_numbers.json")
+    ref_p = os.path.join(RESULTS_DIR, "paper_numbers_reference.json")
+    new_p = os.path.join(RESULTS_DIR, "paper_numbers.json")
     if os.path.exists(ref_p) and os.path.exists(new_p):
         ref, new = json.load(open(ref_p)), json.load(open(new_p))
         dmax = 0.0
@@ -4536,7 +4503,7 @@ def self_validate(workers, report_path):
                      f"largest difference from the reference {max(dmax, hmax):.2g}: {'ok' if st_ok else 'MISMATCH'}")
         ok_all &= st_ok
     else:
-        lines.append("[4] statistics check skipped (no reference resub_numbers.json, e.g. after a fresh sweep)")
+        lines.append("[4] statistics check skipped (no reference paper_numbers.json, e.g. after a fresh sweep)")
     lines += ["", "OVERALL: " + ("PASS" if ok_all else "SEE DEVIATIONS ABOVE")]
     open(report_path, "w").write("\n".join(lines) + "\n")
     print("\n".join(lines))
@@ -4564,8 +4531,8 @@ def main():
 
     if a.validate_only:
         bootstrap_stored_results()
-        if not os.path.exists(os.path.join(RESULTS_DIR, "resub_numbers.json")):
-            compute_resub_numbers()
+        if not os.path.exists(os.path.join(RESULTS_DIR, "paper_numbers.json")):
+            compute_paper_numbers()
         self_validate(N_WORKERS, os.path.join(OUTPUT_DIR, "validation_report.txt"))
         return
     if QUICK_TEST:

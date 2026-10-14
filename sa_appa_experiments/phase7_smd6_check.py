@@ -1,7 +1,7 @@
 """
 phase7_smd6_check.py
 ====================
-Tests why the A5 surrogate fit on SMD6 at (3, 3) is poor.
+Tests why the A5 surrogate fit on SMD6 at (3, 3) was poor under the original lower-level protocol.
 
 SMD6 has a continuum of LL optima: the LL objective contains sum((t[i+1] - t[i])^2) over the
 s = 2 'tail' variables t = x_l1[q:q+s], so every t1 = t2 in [-5, 10] is LL-optimal, while the UL
@@ -26,8 +26,12 @@ import json, os
 import numpy as np
 from scipy.optimize import minimize
 
+# This check describes the ORIGINAL lower-level protocol (no strong Stackelberg selection), so it
+# re-runs SA-APPA without the selection and against the archived no-selection results.
+os.environ["SA_APPA_LL_PROTOCOL"] = "none"
 from benchmark import SUITE
 import phase7_data as P
+P.RES = os.path.join(P.RES, "no_tie_selection")
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "phase7")
 IID, P_, Q_, R_, S_ = "SMD6_p3q3", 3, 3, 2, 2

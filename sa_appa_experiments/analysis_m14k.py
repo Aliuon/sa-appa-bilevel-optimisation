@@ -5,7 +5,7 @@ Algorithm 4, fit them per UL point on the K = (Du+1)(Dl+2)/2 archive points most
 cosine similarity. K >= 60 (the whole budget) on 24 of the 44 instances, where the two rules
 coincide; M14K re-runs the other 20 instances with the published rule. This script repeats
 Scenario 8 with M14K in place of M14 on those 20 instances and adds 's8_m14k' to
-results/resub_numbers.json.
+results/paper_numbers.json.
 """
 import json
 import numpy as np
@@ -53,7 +53,7 @@ sub = {"n": len(inst20),
 out = {"instances": inst20, "s8_with_m14k": full, "on_20": sub,
        "feasible_runs_m14k": int(k.feasible_found.astype(bool).sum()),
        "errors": int(k.best.isna().sum() - (~k.feasible_found.astype(bool)).sum())}
-J = "results/resub_numbers.json"
+J = "results/paper_numbers.json"
 js = json.load(open(J)); js["s8_m14k"] = out
 json.dump(js, open(J, "w"), indent=1)
 print(json.dumps(out, indent=1))

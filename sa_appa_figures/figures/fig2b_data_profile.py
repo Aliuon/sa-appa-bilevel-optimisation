@@ -43,10 +43,9 @@ search dimension) is used as "the" problem dimension here since that is
 the space the LHS design and CEI-guided infill loop actually search;
 the lower level is solved by a separate nested exact solve each time, not
 evaluation-budgeted the same way as the outer loop.
-[NEEDS AUTHOR CHECK: confirm n_ul is the intended normalising dimension --
-an alternative reading uses n_ul+n_ll (total problem dimension); the choice
-changes where curves for the 30-dimensional SMD instances land on the
-budget axis relative to the low-dimensional TP problems.]
+The budget axis is normalised by n_ul. Normalising by n_ul+n_ll (the total
+problem dimension) would move the curves of the 30-dimensional SMD instances
+relative to the low-dimensional TP problems.
 """
 
 import numpy as np
