@@ -1,0 +1,21 @@
+{
+  "title": "SA-APPA: code and data for 'A Surrogate-Assisted Prey-Predator Algorithm for Constrained Bilevel Problems: A Controlled Component Study under a Matched Budget'",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Haroon, Ali M. A.",
+      "affiliation": "University of KwaZulu-Natal; University of Kordofan",
+      "orcid": "0000-0001-9075-0128"
+    },
+    {
+      "name": "Ngnotchouye, Jean Medard T.",
+      "affiliation": "University of KwaZulu-Natal",
+      "orcid": "0000-0001-9130-0444"
+    },
+    {
+      "name": "Tilahun, Surafel Luleseged",
+      "affiliation": "Addis Ababa Science and Technology University",
+      "orcid": "0000-0002-4917-981X"
+    }
+  ]
+}
